@@ -1,2 +1,3 @@
-# tfg
-Métodos de Monte-Carlo y desarrollo de software de síntesis de imágenes.
+# Ray tracing, the book series
+
+En esta rama voy a guardar mis experimentos de los libros [Ray Tracing, the book series](https://raytracing.github.io/).
