@@ -3,5 +3,6 @@
         "*.mdx": "markdown",
         "*.rakumod": "perl6",
         "ostream": "cpp"
-    }
+    },
+    "C_Cpp.errorSquiggles": "Disabled"
 }
