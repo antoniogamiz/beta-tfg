@@ -22,10 +22,9 @@ public:
 
 public:
     std::vector<shared_ptr<hittable>> objects;
-}
+};
 
-bool
-hittable_list::hit(const ray &r, double t_min, double t_max, hit_record &rec) const
+bool hittable_list::hit(const ray &r, double t_min, double t_max, hit_record &rec) const
 {
     hit_record temp_rec;
     bool hit_anything = false;
