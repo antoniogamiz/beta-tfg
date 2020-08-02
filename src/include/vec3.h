@@ -1,6 +1,8 @@
 #ifndef VEC3_H
 #define VEC3_H
 
+#include "rtweekend.h"
+
 #include <cmath>
 #include <iostream>
 
@@ -123,15 +125,23 @@ inline vec3 unit_vector(vec3 v)
     return v / v.length();
 }
 
-vec3 random_in_unit_sphere()
+// vec3 random_in_unit_sphere()
+// {
+//     while (true)
+//     {
+//         auto p = vec3::random(-1, 1);
+//         if (p.length_squared() >= 1)
+//             continue;
+//         return p;
+//     }
+// }
+
+vec3 random_unit_vector()
 {
-    while (true)
-    {
-        auto p = vec3::random(-1, 1);
-        if (p.length_squared() >= 1)
-            continue;
-        return p;
-    }
+    auto a = random_double(0, 2 * pi);
+    auto z = random_double(-1, 1);
+    auto r = sqrt(1 - z * z);
+    return vec3(r * cos(a), r * sin(a), z);
 }
 
 #endif
