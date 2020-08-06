@@ -10,6 +10,7 @@ struct hit_record
 {
     point3 p;
     vec3 normal;
+    // to find out what ray, if any, is scattered
     shared_ptr<material> mat_ptr;
     double t;
     bool front_face;
