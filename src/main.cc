@@ -5,7 +5,10 @@
 #include "color.h"
 #include "hittable_list.h"
 #include "sphere.h"
+
 #include <iostream>
+#include <thread>
+#include <future>
 
 color ray_color(const ray &r, const hittable &world, int depth)
 {
@@ -75,15 +78,33 @@ hittable_list random_scene() {
     return world;
 }
 
+void  generate_image_row(hittable_list world, camera cam, const int image_width, const int image_height, const int samples_per_pixel, const int min, const int max, std::vector<std::vector<std::vector<int>>> * image) {
+    for (int j = max; j > min; --j) {
+        std::vector<std::vector<int>> row_colors;
+        for (int i = 0; i < image_width; ++i)
+        {
+            color pixel_color(0, 0, 0);
+            for (int s = 0; s < samples_per_pixel; ++s)
+            {
+                auto u = (i + random_double()) / (image_width - 1);
+                auto v = (j + random_double()) / (image_height - 1);
+                ray r = cam.get_ray(u, v);
+                pixel_color += ray_color(r, world, 50);
+            }
+            row_colors.push_back(write_color_parallel(pixel_color, samples_per_pixel));
+        }
+        (*image).push_back(row_colors);
+    }
+}
+
 int main()
 {
-
     // Image
 
     const auto aspect_ratio = 3.0 / 2.0;
     const int image_width = 1200;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 500;
+    const int samples_per_pixel = 20;
     const int max_depth = 50;
 
     // World
@@ -99,23 +120,30 @@ int main()
     camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
 
     // Render
+
+    const unsigned k = std::thread::hardware_concurrency();
+    const int batch_size = floor(image_height / k);
+
     std::cout << "P3\n"
         << image_width << ' ' << image_height << "\n255\n";
 
-    for (int j = image_height - 1; j >= 0; --j)
+    std::vector<std::vector<std::vector<std::vector<int>>>> image_fragments(k, std::vector<std::vector<std::vector<int>>>());
+    std::vector<std::thread > workers;
+    for (unsigned n = 0; n < k; n++)
     {
-        std::cerr << "\r Scanlines remaining: " << j << ' ' << std::flush;
-        for (int i = 0; i < image_width; ++i)
-        {
-            color pixel_color(0, 0, 0);
-            for (int s = 0; s < samples_per_pixel; ++s)
-            {
-                auto u = (i + random_double()) / (image_width - 1);
-                auto v = (j + random_double()) / (image_height - 1);
-                ray r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, world, max_depth);
+        workers.push_back(std::thread(generate_image_row, world, cam, image_width, image_height, samples_per_pixel, image_height - 1 - (n+1) * batch_size, image_height - 1 - n * batch_size, &image_fragments[n]));
+    }
+
+    for (unsigned n = 0; n < k; n++) {
+        workers[n].join();
+    }
+
+    for (unsigned n = 0; n < k; n++) {
+        for (unsigned i = 0; i< image_fragments[n].size(); i++) {
+            for (unsigned j = 0; j < image_fragments[n][i].size(); j++) {
+                std::vector<int> color = image_fragments[n][i][j];
+                std::cout << color[0] << ' ' << color[1] << ' ' << color[2] << '\n';
             }
-            write_color(std::cout, pixel_color, samples_per_pixel);
         }
     }
     std::cerr << "\nDone.\n";
