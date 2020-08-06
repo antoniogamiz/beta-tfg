@@ -51,4 +51,29 @@ public:
     double fuzz;
 };
 
+vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat) {
+    auto cos_theta = dot(-uv, n);
+    vec3 r_out_perp = etai_over_etat * (uv+cos_theta*n);
+    vec3 r_out_parallel = -sqrt(fabs(1.0-r_out_perp.length_squared()))*n;
+    return r_out_perp + r_out_parallel;
+}
+
+class dielectric : public material {
+public:
+    dielectric(double ri) : ref_idx(ri) {}
+    virtual bool scatter(
+        const ray& r_in, const hit_record& rec, color & attenuation, ray &scattered
+    ) const override {
+        attenuation = color(1.0, 1.0, 1.0);
+        double etai_over_etat = rec.front_face ? (1.0/ref_idx) : ref_idx;
+
+        vec3 unit_direction = unit_vector(r_in.direction());
+        vec3 refracted = refract(unit_direction, rec.normal, etai_over_etat);
+        scattered = ray(rec.p, refracted);
+        return true;
+    }
+public:
+    double ref_idx;
+};
+
 #endif
