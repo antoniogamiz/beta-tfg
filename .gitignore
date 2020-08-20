@@ -1,3 +1,4 @@
+*.pdf
 .vscode
 *.o
 ## Core latex/pdflatex auxiliary files:

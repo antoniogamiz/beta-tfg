@@ -13,6 +13,7 @@
 \usepackage{xcolor}
 \usepackage{float}
 \usepackage{url}
+\usepackage{tikz-3dplot} 
 
 \newtheorem{theorem}{Teorema}
 \newtheorem{lemma}[theorem]{Lema}
@@ -33,40 +34,213 @@
 
 \begin{document}
 
+\tableofcontents
 
-\title{Apuntes}
-\maketitle
+\vspace{1cm}
 
-\section{Conceptos básicos}
+Las normales siempre apuntan hacia fuera de la superficie. Si en su lugar tomáramos las normales siempre apuntando contrarias al rayo, entonces no podríamos usar el producto vectorial para determinar en qué lado de la superficie estamos. Por tanto, sería necesario guardar esa información.
 
-\begin{definition}
-Un rayo es una función $P(t)=A+tb$, donde $P(t)$ es un punto 3D, $A$ es el origen del rayo y $b$ es la dirección del rayo.
-\end{definition}
 
-\begin{definition}
-El \textit{viewport} es un rectángulo 2D usado para proyectar la escena 3D a la posición de la cámara virtual. En otras palabras, el viewport es una región de la pantalla usada para mostrar parte de la imagen total. 
-\end{definition}
+\section{Configuración de la cámara}
 
-\begin{definition}
-La \textit{focal length} es la distancia entre el plano de proyección y el punto de proyección. Esta distancia es distinta a la \textit{focus distance}.
-\end{definition}
+Para poder trazar rayos a través de nuestro \textit{viewport}, primero es necesario definir una cámara, con un origen, apuntando hacia un determinado \textit{viewport}.
 
-\begin{definition}
-A \textit{linear blend}, interpolación lineal o \textit{lerp} es de la forma:
+\begin{figure}[H]
+\centering
+\tdplotsetmaincoords{70}{150}
+\tdplotsetrotatedcoords{0}{90}{90}
+\begin{tikzpicture} [
+scale=2,
+tdplot_main_coords, 
+tdplot_rotated_coords,
+axis/.style={->,orange,thin},
+rect/.style={black,thin},
+rectuv/.style={red,thin,dashed,->}
+]
+
+% axis
+\pgfmathsetmacro{\ax}{1}
+\draw[axis] (0,0,0) -- (\ax,0,0) node[anchor=north east]{$x_+$};
+\draw[axis] (0,0,0) -- (0,\ax,0) node[anchor=north west]{$y_+$};
+\draw[axis] (0,0,0) -- (0,0,\ax) node[anchor=south]{$z_+$};
+
+% viewport
+\def\x{1};
+\def\y{0.5};
+\def\z{-2};
+\draw[rect] (\x,\y,\z) -- (-\x,\y,\z);
+\draw[rect] (\x,\y,\z) -- (\x,-\y,\z);
+\draw[rect] (-\x,\y,\z) -- (-\x,-\y,\z);
+\draw[rect] (\x,-\y,\z) -- (-\x,-\y,\z);
+\node[scale=0.7] at (\x+0.65,\y,\z) {$viewport$};
+
+% lineas
+\node[scale=0.7] at (-0.25, 0,0.15) {$origen$};
+\draw[dashed,-|] (0,0,0) -- (0,0,\z);
+
+% u,v
+\draw[rectuv] (-\x,-\y*0.35,\z) -- (\x*0.4,-\y*0.3,\z);
+\node[red, scale=0.55] at (\x*0.2,-0.1 ,\z) {$u$};
+\draw[rectuv] (\x*0.4,-\y,\z) -- (\x*0.4,-\y*0.35,\z);
+\node[red, scale=0.55] at (\x*0.5,-0.3 ,\z) {$v$};
+% ray
+\draw[thick, green,->] (0,0,0) -- (\x*0.4,-\y*0.35,\z);
+\node[scale=0.4] at (\x*0.6,0,\z*0.4) {$ray$};
+\end{tikzpicture}
+\end{figure}
+
+Esto permite, usando $u$ y $v$, trazar rayos que pasen por todos los píxeles. Cualquier punto del viewport puede ser expresado como una combinación lineal de $u$ y $v$: 
 \[
-\text{blendedValue} = (1-t)\cdot\text{startValue}+t\cdot\text{endValue}, \; t\in[0,1]
+ray=lower\_corner+u+v,
 \]
-\end{definition}
+donde $u=+a*i$ y $v=b*j$, siendo $a$ y $b$ el ancho y el alto del viewport, e $i$ y $j$ vectores unitarios en la parte positiva del eje $Y$ y $X$, respectivamente. 
 
-\begin{prop}
-Sea $r$ la dirección de un rayo y $n$ la normal (hacia afuera) de una superficie intersecada por el rayo. Si $r\cdot n>0$, entonces el rayo se encuentra dentro de la superficie. En caso contrario, se encontrará fuera.
-\end{prop}
+\subsection{Field of view}
 
-\begin{proof}
-Basta usar que $a\cdot b = |a||b|\cos\theta$ y la gráfica del coseno para ver su signo.
-\end{proof}
+Definir el viewport para cada imagen generada puede ser algo engorroso. Por ello, se usan varias definiciones que permiten definir el viewport a partir de un único parámetro denominado \textit{vertifal field of view}, o \textit{vfov}. Previamente, es necesario establecer una relación entre el ancho y el alto del viewport, lo que se conoce como \textit{aspect ratio}. La relación es: $viewport\_width=aspect\_ratio*viewport\_height$.
 
-\begin{definition}
+Para especificar la altura del viewport, es conveniente usar un parámetro que sea medido en ángulos, para poder hacer \textit{zooming} de forma más cómodo. Para ello, se puede usar la siguiente relación matemática:
+
+\begin{figure}[H]
+\centering
+\tdplotsetmaincoords{70}{150}
+\tdplotsetrotatedcoords{0}{90}{90}
+\begin{tikzpicture} [
+scale=2,
+tdplot_main_coords, 
+tdplot_rotated_coords,
+axis/.style={->,orange,thin},
+rect/.style={black,thin},
+rectuv/.style={red,thin,dashed,->}
+]
+
+% axis
+\pgfmathsetmacro{\ax}{1}
+\draw[axis] (0,0,0) -- (\ax,0,0) node[anchor=north east]{$x_+$};
+\draw[axis] (0,0,0) -- (0,\ax,0) node[anchor=north west]{$y_+$};
+\draw[axis] (0,0,0) -- (0,0,\ax) node[anchor=south]{$z_+$};
+\draw[->,orange,thin,dashed] (0,0,0) -- (0,0,-2);
+% viewport
+\def\x{1};
+\def\y{0.5};
+\def\z{-2};
+\draw[rect] (\x,\y,\z) -- (-\x,\y,\z);
+\draw[rect] (\x,\y,\z) -- (\x,-\y,\z);
+\draw[rect] (-\x,\y,\z) -- (-\x,-\y,\z);
+\draw[rect] (\x,-\y,\z) -- (-\x,-\y,\z);
+\node[scale=0.7] at (\x+0.65,\y,\z) {$viewport$};
+
+
+\draw[dashed,-|] (0,0,0) -- (0,\y,\z);
+\draw[dashed,-|] (0,0,0) -- (0,-\y,\z);
+
+\draw [domain=-105:-75, dashed] plot (0,{0.5*cos(\x)}, {0.5*sin(\x)});
+\node[scale=0.7] at (0,-0.08,-0.6) {$\theta$};
+\draw[|-|,red,thin,dashed] (0,0,\z) -- (0,\y,\z);
+\node[scale=0.7, red] at (0,\y*0.45,\z+0.08) {$h$};
+\end{tikzpicture}
+\end{figure}
+
+De la figura se puede deducir fácilmente que $h=\sin\frac{\theta}{2}$. Usando la definición de la tangente de un ángulo, se tiene que $h=\sin\frac{\theta}{2}=\tan\frac{\theta}{2}\cos\frac{\theta}{2}$. Para dejar esa expresión un poco más \textit{simple}, es posible asumir que la distancia del origen de la cámara al centro del viewport (\textit{focal distance}) va a ser siempre 1, luego $h=\tan\frac{\theta}{2}$.
+
+\subsection{Posicionamiento}
+
+En los dos apartados anteriores, la cámara ha estado situada en el origen y mirando siempre al frente. Evindetemente, este no es el caso usual, luego son necesarios parámetros adicionales para implementar esta característica. 
+
+A la posición donde ponemos la cámara (el centro), se le domina \textit{lookfrom}, y al punto dónde mira, \textit{lookat}. También se podría usar directamente una dirección. Además de estos dos puntos, es necesario saber la rotación de la cámara respecto de la recta formada por esos dos puntos. Esto es necesario ya que aunque se sepa en qué dirección apunta la cámara, no es posible saber cómo de inclinada está (por ejemplo, inclinar la cabeza). Para ello, se define un verctor que apunte \textit{hacia arriba} para la cámara. Este vector debe estar en el plano ortogonal a la dirección formada por los dos puntos anteriores y se denotará por \textit{view up} o \textit{vup}:
+
+\begin{figure}[H]
+\centering
+\tdplotsetmaincoords{70}{150}
+\tdplotsetrotatedcoords{0}{90}{90}
+\begin{tikzpicture} [
+scale=2,
+tdplot_main_coords, 
+tdplot_rotated_coords,
+axis/.style={->,orange,thin},
+rect/.style={black,thin},
+rectuv/.style={red,thin,dashed,->}
+]
+
+% viewport
+\def\x{1.5};
+\def\y{0.6};
+\def\z{0};
+\draw[rect] (\x,\y,\z) -- (-\x,\y,\z);
+\draw[rect] (\x,\y,\z) -- (\x,-\y,\z);
+\draw[rect] (-\x,\y,\z) -- (-\x,-\y,\z);
+\draw[rect] (\x,-\y,\z) -- (-\x,-\y,\z);
+
+\node[red] at (0,0,0) {\textbullet};
+\node[red] at (0,-1,-3) {\textbullet};
+\draw[red,thin,dashed,->] (0,0,0)--(0,-1,-2.96);
+\node[scale=0.6] at (0,-1,-2.7) {$lookat$};
+
+\def\d{0.3}
+\draw[red,thin,dashed,->] (0,0,0)--(0,\d,0);
+\draw[red,thin,dashed,->] (0,0,0)--(0,-\d,0);
+\draw[red,thin,dashed,->] (0,0,0)--(\d,0,0);
+\draw[red,thin,dashed,->] (0,0,0)--(-\d,0,0);
+\draw[red,thin,dashed,->] (0,0,0)--(\d,\d,0);
+\draw[red,thin,dashed,->] (0,0,0)--(-\d,\d,0);
+\draw[red,thin,dashed,->] (0,0,0)--(-\d,-\d,0);
+\draw[red,thin,dashed,->] (0,0,0)--(\d,-\d,0);
+
+\node[scale=0.6] at (0.9,0.34,0.1) {$lookfrom$};
+\end{tikzpicture}
+\end{figure}
+
+Con estos tres elementos (lookfrom, lookat y vup) ya es posible formar una base ortonormal describiendo la orientación de nuestra cámara. Para ello sólo hace falta tomar como base los vectores $(u,v,w)$ definidos por:
+\[
+\left\{\begin{array}{lll}
+w = \displaystyle\frac{lookfrom-lookat}{|lookfrom-lookat|}\\
+u = \displaystyle\frac{vup\times w}{vup\times w}\\
+v = \displaystyleº\frac{w\times u}{w\times u}\\
+\end{array}
+\right.
+\]
+
+Consiguiendo algo similar a la siguiente figura:
+
+\begin{figure}[H]
+\centering
+\tdplotsetmaincoords{70}{150}
+\tdplotsetrotatedcoords{0}{90}{90}
+\begin{tikzpicture} [
+scale=2,
+tdplot_main_coords, 
+tdplot_rotated_coords,
+axis/.style={->,orange,thin},
+rect/.style={black,thin},
+rectuv/.style={red,thin,dashed,->}
+]
+
+% viewport
+\def\x{1.5};
+\def\y{0.6};
+\def\z{0};
+\draw[rect] (\x,\y,\z) -- (-\x,\y,\z);
+\draw[rect] (\x,\y,\z) -- (\x,-\y,\z);
+\draw[rect] (-\x,\y,\z) -- (-\x,-\y,\z);
+\draw[rect] (\x,-\y,\z) -- (-\x,-\y,\z);
+
+\node[red] at (0,0,0) {\textbullet};
+\node[red] at (0,-1,-3) {\textbullet};
+\draw[red,thin,dashed,->] (0,0,0)--(0,-1,-2.96);
+
+\draw[green,thin,dashed,->] (0,0,0)--(0,1*0.25,2.96*0.25) node[anchor=south] {$w$};
+\draw[orange,thin,dashed,->] (0,0,0)--(0,1,0) node[anchor=south] {$v$};
+\draw[blue,thin,dashed,->] (0,0,0)--(1,0,0) node[anchor=south] {$u$};
+\end{tikzpicture}
+\end{figure}
+
+\subsection{Depth of field}
+
+\textbf{este apartado no lo entiendo muy bien}. Lo útlimo que va a ser añadido a esta cámara es lo que los fotógrafos llaman \textit{depth of field}. Para ello es necesario simular una lente entre la cámara y el viewport. A partir de ahora, en lugar de ser generados desde un único punto (lookfrom), los rayos serán generados aleatoriamente dentro un círculo con centro \textit{lookfrom} y un diámetro denominado \textit{aperture}, que será otro parámetro de la cámara. Además, definiremos otro parámetro llamado \textit{focus distance}.
+
+\section{Corrección del color}
+
+\subsection{Antialiasing}
 
 El \textit{antialiasing} es un filtro que suaviza los \textit{dientes de sierra} que se crean al intentar pintar líneas curvas. 
 
@@ -76,49 +250,9 @@ El \textit{antialiasing} es un filtro que suaviza los \textit{dientes de sierra}
   \caption{Imagen tomada de \cite{antialiasing}}
 \end{figure}
 
-\end{definition}
+Este problema puede ser corregido tomando varias muestras por cada píxel, es decir, lanzar varios rayos por un mismo píxel y luego hacer la media de los colores obtenidos.
 
-\section{Convenciones}
-
-\begin{enumerate}
-
-\item Vamos a tomar el sistema de referencia siguiente para la cámara:
-
-\begin{figure}[H]
-   \center
-  \includegraphics[scale=0.3]{camera_convention.jpg}
-  \caption{Imagen tomada de \cite{first_book}}
-\end{figure}
-
-\item Las normales siempre apuntan hacia afuera de la superficie. Si en su lugar tomáramos las normales siempre apuntando contrarias al rayo, entonces no podríamos usar el producto vectorial para determinar en qué lado de la superficie estamos. Por tanto, sería necesario guardar esa información.
-
-\end{enumerate}
-
-\section{Materiales}
-
-\subsection{Materiales difusos/mates}
-
-Los objetos difusos o mates no emiten luz, simplemente toman el color del ambiente en el que se encuentran, alterandolo ligeramente con su propio color. La dirección de la luz reflejada por un material difuso es aleatoria.
-
-\begin{figure}[H]
-   \center
-  \includegraphics[scale=0.3]{diffuse.jpg}
-  \caption{Imagen tomada de \cite{first_book}}
-\end{figure}
-
-\subsubsection{Elección de rayos}
-
-Los rayos también podrían ser absorvidos en lugar de reflejados. Cuanto más oscura sea la superficie, más probable es que sea absorvido.
-
-\begin{figure}[H]
-   \center
-  \includegraphics[scale=0.2]{diffuse_tangent.jpg}
-  \caption{Imagen tomada de \cite{first_book}}
-\end{figure}
-
-El punto $S$ es eligido de forma aleatoria dentro de la esfere tangente a $P$ de radio unidad (la de centro $P+n$). El nuevo rayo reflejado será el que pasa por el punto $P$ con dirección $S-P$.
-
-\subsubsection{Corrección gamma}
+\subsection{Corrección gamma}
 
 Es una operación no linear, usada para codificar y decodificar la luminosidad. Es definido por la siguiente fórmula:
 \[
@@ -130,7 +264,56 @@ Dependiendo del valor de $\gamma$, la luminosidad de la imagen variará:
 \item $\gamma > 1$: normalmente denotado por \textit{decoding gamma} o \textit{gamma decompression}. Cuánto más grande sea $\gamma$, más oscura será la imagen resultante.
 \end{itemize}
 
-En nuestro programa, tomamos $A=\frac{1}{nsamples}$ donde $nsamples$ es el número de rayos creados por pixel, y $\gamma=\frac{1}{2}$.
+En nuestro programa, tomamos $A=\frac{1}{nsamples}$, donde $nsamples$ es el número de rayos creados por píxel, y $\gamma=\frac{1}{2}$.
+
+\section{Materiales}
+
+\subsection{Materiales difusos/mates}
+
+Los objetos difusos o mates no emiten luz, simplemente toman el color del ambiente en el que se encuentran, alterandolo ligeramente con su propio color. La dirección de la luz reflejada por un material difuso es aleatoria.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+\draw [domain=30:150] plot ({3*cos(\x)}, {0.7*sin(\x)});
+\draw [domain=0:360] plot ({cos(\x)}, {1.69+sin(\x)});
+\draw[red,thin,->] (-3,2)--({3*cos(110)},{0.7*sin(110)})--({cos(210)}, {1.69+sin(210)})--({3*cos(100)},{0.7*sin(100)})--(-1.5,1.3);
+\draw[blue,thin,->] (-3.1,1.9)--({3*cos(115)},{0.7*sin(115)})--({cos(190)}, {1.69+sin(190)})--(-1.5,2);
+\draw[green,thin,->] (-3.2,1.8)--({3*cos(120)},{0.7*sin(120)})--(-1.2,1.3);
+\end{tikzpicture}
+\end{figure}
+
+
+\subsubsection{Elección de rayos}
+
+Los rayos también podrían ser absorvidos en lugar de reflejados. Cuanto más oscura sea la superficie, más probable hay de que sea absorvido.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+
+\def\r{1.15};
+\def\l{4};
+\def\R{5.15};
+\def\a{315};
+\draw[red,dashed] (0,0) circle (\r);
+\draw [domain=100:160] plot ({\R*cos(\a)+\l*cos(\x)}, {\R*sin(\a)+\l*sin(\x)});
+\node[] at ({\r*cos(\a)},{\r*sin(\a)}) {\textbullet};
+\node[] at (0,0) {\textbullet};
+\node[red] at (-0.5,-0.2) {\textbullet};
+\node[red,scale=0.8] at (-0.5,0.1) {$S$};
+\node[] at ({\r*cos(\a)+0.2},{\r*sin(\a)-0.1}) {$P$};
+\draw[thin,->]({\r*cos(\a)},{\r*sin(\a)})--(0.03,-0.07);
+\node[] at (0.5, -0.3) {$n$};
+\node[scale=0.7] at (0.5, 0.1) {$P+n$};
+\draw[red,thin,->]({\r*cos(\a)},{\r*sin(\a)})--(-0.5,-0.2);
+
+\node[scale=0.7,orange] at (-0.6, -1.6 ) {$ray$};
+\draw[orange,thick,->](-0.7,-2)--({\r*cos(\a)},{\r*sin(\a)});
+\end{tikzpicture}
+\end{figure}
+
+El punto $S$ es eligido de forma aleatoria dentro de la esfere tangente a $P$ de radio unidad (la de centro $P+n$). El nuevo rayo reflejado será el que pasa por el punto $P$ con dirección $S-P$.
 
 \subsubsection{Shadow Acne}
 
