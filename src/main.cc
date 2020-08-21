@@ -7,7 +7,10 @@
 #include "sphere.h"
 #include "moving_sphere.h"
 
+#include <fstream>
 #include <iostream>
+#include <string>
+#include <sstream>
 #include <thread>
 #include <future>
 
@@ -89,6 +92,11 @@ hittable_list random_scene()
 
 void generate_image_row(hittable_list world, camera cam, const int image_width, const int image_height, const int samples_per_pixel, const int min, const int max, std::vector<std::vector<std::vector<int>>> *image, const int max_depth)
 {
+    std::ofstream outfile;
+    std::stringstream ss;
+    ss << std::this_thread::get_id();
+    std::string thread_id = ss.str();
+    outfile.open("progress/" + thread_id);
     for (int j = max; j > min; --j)
     {
         std::vector<std::vector<int>> row_colors;
@@ -104,6 +112,8 @@ void generate_image_row(hittable_list world, camera cam, const int image_width, 
             }
             row_colors.push_back(write_color_parallel(pixel_color, samples_per_pixel));
         }
+        outfile << max - j << " "
+                << " " << max - min << std::endl;
         (*image).push_back(row_colors);
     }
 }
@@ -115,8 +125,8 @@ int main()
     const auto aspect_ratio = 16.0 / 9.0;
     const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 35;
-    const int max_depth = 50;
+    const int samples_per_pixel = 25;
+    const int max_depth = 25;
 
     // World
     auto world = random_scene();
@@ -138,6 +148,7 @@ int main()
     std::cout << "P3\n"
               << image_width << ' ' << image_height << "\n255\n";
 
+    // TODO: arreglar la asignacion de trabajo al ultimo thread, a no ser que sea multiplo, se quedan filas sin hacer
     std::vector<std::vector<std::vector<std::vector<int>>>> image_fragments(k, std::vector<std::vector<std::vector<int>>>());
     std::vector<std::thread> workers;
     for (unsigned n = 0; n < k; n++)
