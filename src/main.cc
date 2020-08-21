@@ -5,6 +5,7 @@
 #include "color.h"
 #include "hittable_list.h"
 #include "sphere.h"
+#include "moving_sphere.h"
 
 #include <iostream>
 #include <thread>
@@ -24,40 +25,48 @@ color ray_color(const ray &r, const hittable &world, int depth)
         ray scattered;
         color attenuation;
         if (rec.mat_ptr->scatter(r, rec, attenuation, scattered))
-            return attenuation * ray_color(scattered, world, depth-1);
+            return attenuation * ray_color(scattered, world, depth - 1);
     }
     vec3 unit_direction = unit_vector(r.direction());
     auto t = 0.5 * (unit_direction.y() + 1.0);
     return (1.0 - t) * color(1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0);
 }
 
-hittable_list random_scene() {
+hittable_list random_scene()
+{
     hittable_list world;
 
     auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
     world.add(make_shared<sphere>(point3(0, -1000, 0), 1000, ground_material));
 
-    for (int a = -11; a < 11; a++) {
-        for (int b = -11; b < 11; b++) {
+    for (int a = -11; a < 11; a++)
+    {
+        for (int b = -11; b < 11; b++)
+        {
             auto choose_mat = random_double();
-            point3 center(a+0.9*random_double(), 0.2, b+0.9*random_double());
+            point3 center(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
 
-            if ((center-point3(4, 0.2, 0)).length() > 0.9) {
+            if ((center - point3(4, 0.2, 0)).length() > 0.9)
+            {
                 shared_ptr<material> sphere_material;
-                if (choose_mat < 0.8) {
+                if (choose_mat < 0.8)
+                {
                     // diffuse
                     auto albedo = color::random() * color::random();
                     sphere_material = make_shared<lambertian>(albedo);
-                    world.add(make_shared<sphere>(center, 0.2, sphere_material));
+                    auto center2 = center + vec3(0, random_double(0, .5), 0);
+                    world.add(make_shared<moving_sphere>(center, center2, 0.0, 1.0, 0.2, sphere_material));
                 }
-                else if (choose_mat < 0.95) {
+                else if (choose_mat < 0.95)
+                {
                     // metal
                     auto albedo = color::random(0.5, 1);
                     auto fuzz = random_double(0, 0.5);
                     sphere_material = make_shared<metal>(albedo, fuzz);
                     world.add(make_shared<sphere>(center, 0.2, sphere_material));
                 }
-                else {
+                else
+                {
                     // glass
                     sphere_material = make_shared<dielectric>(1.5);
                     world.add(make_shared<sphere>(center, 0.2, sphere_material));
@@ -78,8 +87,10 @@ hittable_list random_scene() {
     return world;
 }
 
-void  generate_image_row(hittable_list world, camera cam, const int image_width, const int image_height, const int samples_per_pixel, const int min, const int max, std::vector<std::vector<std::vector<int>>> * image) {
-    for (int j = max; j > min; --j) {
+void generate_image_row(hittable_list world, camera cam, const int image_width, const int image_height, const int samples_per_pixel, const int min, const int max, std::vector<std::vector<std::vector<int>>> *image, const int max_depth)
+{
+    for (int j = max; j > min; --j)
+    {
         std::vector<std::vector<int>> row_colors;
         for (int i = 0; i < image_width; ++i)
         {
@@ -89,7 +100,7 @@ void  generate_image_row(hittable_list world, camera cam, const int image_width,
                 auto u = (i + random_double()) / (image_width - 1);
                 auto v = (j + random_double()) / (image_height - 1);
                 ray r = cam.get_ray(u, v);
-                pixel_color += ray_color(r, world, 50);
+                pixel_color += ray_color(r, world, max_depth);
             }
             row_colors.push_back(write_color_parallel(pixel_color, samples_per_pixel));
         }
@@ -101,10 +112,10 @@ int main()
 {
     // Image
 
-    const auto aspect_ratio = 3.0 / 2.0;
-    const int image_width = 1200;
+    const auto aspect_ratio = 16.0 / 9.0;
+    const int image_width = 400;
     const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 20;
+    const int samples_per_pixel = 35;
     const int max_depth = 50;
 
     // World
@@ -117,7 +128,7 @@ int main()
     auto dist_to_focus = 10.0;
     auto aperture = 0.1;
 
-    camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus);
+    camera cam(lookfrom, lookat, vup, 20, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
 
     // Render
 
@@ -125,22 +136,26 @@ int main()
     const int batch_size = floor(image_height / k);
 
     std::cout << "P3\n"
-        << image_width << ' ' << image_height << "\n255\n";
+              << image_width << ' ' << image_height << "\n255\n";
 
     std::vector<std::vector<std::vector<std::vector<int>>>> image_fragments(k, std::vector<std::vector<std::vector<int>>>());
-    std::vector<std::thread > workers;
+    std::vector<std::thread> workers;
     for (unsigned n = 0; n < k; n++)
     {
-        workers.push_back(std::thread(generate_image_row, world, cam, image_width, image_height, samples_per_pixel, image_height - 1 - (n+1) * batch_size, image_height - 1 - n * batch_size, &image_fragments[n]));
+        workers.push_back(std::thread(generate_image_row, world, cam, image_width, image_height, samples_per_pixel, image_height - 1 - (n + 1) * batch_size, image_height - 1 - n * batch_size, &image_fragments[n], max_depth));
     }
 
-    for (unsigned n = 0; n < k; n++) {
+    for (unsigned n = 0; n < k; n++)
+    {
         workers[n].join();
     }
 
-    for (unsigned n = 0; n < k; n++) {
-        for (unsigned i = 0; i< image_fragments[n].size(); i++) {
-            for (unsigned j = 0; j < image_fragments[n][i].size(); j++) {
+    for (unsigned n = 0; n < k; n++)
+    {
+        for (unsigned i = 0; i < image_fragments[n].size(); i++)
+        {
+            for (unsigned j = 0; j < image_fragments[n][i].size(); j++)
+            {
                 std::vector<int> color = image_fragments[n][i][j];
                 std::cout << color[0] << ' ' << color[1] << ' ' << color[2] << '\n';
             }
