@@ -13,7 +13,8 @@
 \usepackage{xcolor}
 \usepackage{float}
 \usepackage{url}
-\usepackage{tikz-3dplot} 
+\usepackage{tikz-3dplot}
+\usetikzlibrary{patterns}
 
 \newtheorem{theorem}{Teorema}
 \newtheorem{lemma}[theorem]{Lema}
@@ -450,6 +451,70 @@ R(\theta)=R_0+(1-R_0)(1-cos\theta)^5, \;\;\;\; R_0=\left(\frac{n_1-n_2}{n_1+n_2}
 \]
 siendo $n1$ y $n2$ los coeficientes de refracción de cada medio.
 
+\section{Bounding Volume Hierarchy}
+
+Un \textit{bounding volume hierarchy} o \textit{BVH} es un objeto con estructura de árbol conteniendo un conjunto de objetos geométricos. Cada uno de esos objetos está contenido o delimitado por un volumen y estos forman los nodos hoja del árbol. Estos nodos, a su vez, son agrupados en pequeños conjuntos englobados también en otra \textit{bounding box} más grande. Repitiendo este proceso de forma recursiva, conseguimos una estructura de árbol en la que el nodo raíz es una boundinx box englobando a todos los objetos geométricos existentes.
+
+Hay muchas elecciones diferentes para englobar a los objetos geométricos. En este texto se van a usar lo que se conoce como \textit{Axis-Aligned Bounding Boxes} o \textit{AABB}. Un AABB es un volumen que engloba al objeto geométrico, y sus aristas son paralelas a los ejes del sistema de referencia. En este caso, $\mathbb{R}^3$, los AABB son cubos.
+
+El hecho de que sean cubos es benificioso porque se puede usar el \textit{slab method} para calcular si un rayo interseca o no cierto volumen.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=2]
+\draw[pattern=north west lines, pattern color=blue,draw=none] (-0.5,-1) rectangle (0.5,1);
+\draw[pattern=north west lines, pattern color=green,draw=none] (-1,-0.5) rectangle (1,0.5);
+\draw[line width=1pt,blue](-0.5,-1)--(-0.5,1) node[black,anchor=south west] {$x_0$};
+\draw[line width=1pt,blue](0.5,-1)--(0.5,1) node[black,anchor=south west] {$x_1$};
+\draw[line width=1pt,green](-1,0.5)--(1,0.5) node[black,anchor=west] {$y_1$};
+\draw[line width=1pt,green](-1,-0.5)--(1,-0.5) node[black,anchor=west] {$y_0$};
+\end{tikzpicture}
+\caption{AABB en 2D}
+\end{figure}
+
+Para comprobar si un rayo interseca un AABB de cualquier dimensión, simplemente hay que comprobar si el rayo interseca cada uno de los intervalos que definen cada \textit{slab} del AABB (en $n$ dimensiones, un AABB es un cubo $n$-dimensional).
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=2]
+\draw[line width=1pt,blue](-0.5,-1)--(-0.5,1);
+\draw[line width=1pt,blue](0.5,-1)--(0.5,1);
+\node[black] at (-0.5,-1.1) {$x_0$};
+\node[black] at (0.5,-1.1) {$x_1$};
+\draw[line width=1pt,black,->](-0.8,-0.7)--(0.8,0.5);
+\node[black] at (-0.34,-0.6) {$t_0$};
+\node[black] at (0.4,0) {$t_1$};
+\end{tikzpicture}
+\caption{Intersección de un rayo con un slab}\label{slab_intersection}
+\end{figure}
+
+Los slabs son de $n-1$ dimensiones, luego en nuestro caso (tres dimensiones), los slabs están representados por planos. Con averiguar la intersección de un slab es suficiente, ya que los demás se harán de forma análoga. En el caso de la figura \ref{slab_intersection}, el slab estará delimitado por dos planos con ecuaciones $x=x_0$ y $x=x_1$, respectivamente. Los rayos son descritos por la función:
+\[
+P(t)=A+tb
+\]
+Esta función es válida para cualquiera de las tres coordenadas de un punto y la resolución de una de ellas se puede aplciar análogamente a las demás, luego solo es necesario resolver $x(t)=A_x+tb_x$. Es sencillo ver que los dos valores de $t$ para los que el rayo interseca a los dos planos son:
+\[
+t_{x_0}=\frac{x_0-A_x}{b_x} \;\;\;\;\; t_{x_1}=\frac{x_1-A_x}{b_x}
+\]
+Ahora se tiene un intervalo $[t_0,t_1]$ en el que el rayo se encuentra dentro de la zona delimitada por ambos planos. Al calcular los intervalos para los dos siguientes slabs, se tienen tres intervalos diferentes, donde el rayo está delimitado por el respectivo slab, pero todavía no se sabe si el rayo ha intersacado al objeto. La clave es ver que el rayo intersecará el objeto si y solo si los tres intervalos se solapan.
+
+Al calcular los intervalos de cada slab, pueden generarse varios problemas, como la división por 0 si $b_x=0$. En ese caso, el cero tendra signo ya que es guardado usando el punto flotanto de IEEE. Además, si se da $b_x=0$, $t_{x_0}$ y $t_{x_1}$ serán ambos o $+\infty$ o $-\infty$, ya que en ese caso la dirección del rayo sería paralelo al plano YZ, luego el signo sería definido por el término $A_x$:
+
+\begin{itemize}
+\item Si el rayo está fuera por la izquierda, entonces $A_x<x_0<x_1$, luego $x_0-A_x>0$ y $x_1-A_x>0$.
+\item Si el rayo está fuera por la derecha, entonces $x_0<x_1<A_x$, luego $x_0-A_x<0$ y $x_1-A_x<0$.
+\item Si el rayo está dentro, entonces $x_0<A_x<x_1$, luego $x_0-A_x<0$ y $x_1-A_x0>$.
+\end{itemize}
+
+Por tanto, para solventar estos problemas, basta con tomar $t_{x_0}$ y $t_{x_1}$ como sigue:
+
+\[
+t_{x_0}=\min\left(\frac{x_0-A_x}{b_x},\frac{x_1-A_x}{b_x}\right) \;\;\;\;\;t_{x_1}=\max\left(\frac{x_0-A_x}{b_x},\frac{x_1-A_x}{b_x}\right)
+\]
+El problema restante es que si $b_x=0$ y $x_0-A_x=0$ o $x_1-A_x=0$ (el rayo estaría contenido en el plano que delimita el slab) se obtendría un valor indefinido (\textit{NaN}). En ese caso da igual si se acepta como intersección o no.
+
+Por último, queda ver una forma de comprobar si dos intervalos arbitrarios se solapan. Para ello, simplemente hay que calcular el máximo de los inicios, $f$, y el mínimo de los finales, $F$ y ver si $f<F$, en cuyo caso, los intervalos se solapan en los puntos contenidos en $[f,F]$. 
+
 \begin{thebibliography}{9}
 \bibitem{first_book}
 \url{https://raytracing.github.io/books/RayTracingInOneWeekend.html}
@@ -467,6 +532,17 @@ siendo $n1$ y $n2$ los coeficientes de refracción de cada medio.
 \url{https://en.wikipedia.org/wiki/Snell%27s_law}
 \bibitem{schlickapproximation}
 \url{https://en.wikipedia.org/wiki/Schlick%27s_approximation}
+\bibitem{bvh}
+\url{https://en.wikipedia.org/wiki/Bounding_volume_hierarchy}
+\bibitem{aabb}
+\url{https://en.wikipedia.org/wiki/Minimum_bounding_box}
 \end{thebibliography}
 
 \end{document}
+
+%\begin{figure}[H]
+%\centering
+%\begin{tikzpicture}
+%
+%\end{tikzpicture}
+%\end{figure}
