@@ -1,18 +1,20 @@
 #!/bin/bash
 
+PROGRESS_DIR=progress
+
 function progress {
     echo  "$1/$2"
 }
 
-[ ! -d "progress" ] && echo "Ray tracer is not running!" && exit
-
-PROGRESS_DIR=progress
-
-total_iterations=0
-current_iterations=0
+[ ! -d $PROGRESS_DIR ] && echo "Ray tracer is not running!" && exit
 
 while :
 do
+  [ ! -d $PROGRESS_DIR ] && echo "Ray tracer rendering has finished!" && exit
+
+  total_iterations=0
+  current_iterations=0
+
   for entry in "$PROGRESS_DIR"/*
   do
     local_progress=($(awk '/./{line=$0} END{print line}' $entry))
