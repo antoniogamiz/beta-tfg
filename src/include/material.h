@@ -3,6 +3,7 @@
 
 #include "rtweekend.h"
 #include "hittable.h"
+#include "texture.h"
 
 class material
 {
@@ -14,21 +15,22 @@ public:
 class lambertian : public material
 {
 public:
-    lambertian(const color &a) : albedo(a) {}
+    lambertian(const color &a) : albedo(make_shared<solid_color>(a)) {}
+    lambertian(shared_ptr<texture> a) : albedo(a) {}
 
     // TODO: we could just as well only scatter with some probability p and have attenuation
-    // be albedo/p.
+    // be albedo/p (i do not know if albedo/p would be correct)
     virtual bool scatter(
         const ray &r_in, const hit_record &rec, color &attenuation, ray &scattered) const override
     {
         vec3 scatter_direction = rec.normal + random_unit_vector();
         scattered = ray(rec.p, scatter_direction, r_in.time());
-        attenuation = albedo;
+        attenuation = albedo->value(rec.u, rec.v, rec.p);
         return true;
     }
 
 public:
-    color albedo;
+    shared_ptr<texture> albedo;
 };
 
 vec3 reflect(const vec3 &v, const vec3 &n)
