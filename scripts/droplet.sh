@@ -8,4 +8,4 @@ doctl compute droplet create RayTracer --image ubuntu-20-04-x64 --size c-2 --reg
 # to disable known_hosts warning (not recommended): https://superuser.com/a/853144/1161534
 # Warning: Using the doctl Snap? Grant access to the ssh-keys interface with this command: sudo snap connect doctl:ssh-keys
 
-doctl compute ssh RayTracer --ssh-command 'git clone -b raytracing-bookseries https://github.com/antoniogamiz/tfg.git repo && export DO_TOKEN=$DO_TOKEN && cd repo && bash scripts/run-raytracer.sh'
+doctl compute ssh RayTracer --ssh-command 'git clone -b raytracing-bookseries https://github.com/antoniogamiz/tfg.git repo && export DO_TOKEN=$DO_TOKEN && cd repo && noup bash scripts/run-raytracer.sh &'
