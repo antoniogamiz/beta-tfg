@@ -17,3 +17,4 @@ echo "Execution time: $(($end-$begin))" | mutt -a "./result.png" -s "Run $(date)
 
 # doctl compute droplet delete RayTracer
 # to check progress: doctl compute ssh RayTracer --ssh-command 'cd repo && bash show_progress.sh'
+# output:  doctl compute ssh RayTracer --ssh-command 'tail repo/nohup.out'
