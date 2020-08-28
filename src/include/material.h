@@ -126,7 +126,7 @@ public:
 
     virtual color emitted(double u, double v, const point3 &p) const override
     {
-        return emit->value(u, v, p)
+        return emit->value(u, v, p);
     }
 
 public:
