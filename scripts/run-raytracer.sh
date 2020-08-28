@@ -1,8 +1,8 @@
 # setup dependencies
 snap install doctl
-apt intall update
+apt update
 apt install -y make g++ mutt sendmail
-doctl auth init --access-token $DO_TOKEN
+# doctl auth init --access-token $DO_TOKEN
 
 # run
 begin=$(date +%s)
