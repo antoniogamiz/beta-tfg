@@ -2,6 +2,9 @@
 
 En esta rama voy a guardar mis experimentos de los libros [Ray Tracing, the book series](https://raytracing.github.io/).
 
+- https://www.digitalocean.com/community/tutorials/how-to-use-doctl-the-official-digitalocean-command-line-client
+- std_image
+
 ### Referencias
 
 - [PPM image format](https://en.wikipedia.org/wiki/Netpbm)
