@@ -6,6 +6,7 @@
 #include "hittable_list.h"
 #include "sphere.h"
 #include "moving_sphere.h"
+#include "aarect.h"
 
 #include <fstream>
 #include <iostream>
@@ -124,6 +125,21 @@ hittable_list earth()
     return hittable_list(globe);
 }
 
+hittable_list simple_light()
+{
+    hittable_list objects;
+
+    auto pertext = make_shared<noise_texture>(4);
+    objects.add(make_shared<sphere>(point3(0, -1000, 0), 1000, make_shared<lambertian>(pertext)));
+    objects.add(make_shared<sphere>(point3(0, 2, 0), 2, make_shared<lambertian>(pertext)));
+
+    // color light has to be grater than (1,1,1)
+    auto difflight = make_shared<diffuse_light>(color(4, 4, 4));
+    objects.add(make_shared<xy_rect>(3, 5, 1, 3, -2, difflight));
+
+    return objects;
+}
+
 void generate_image_row(hittable_list world, camera cam, const int image_width, const int image_height, const int samples_per_pixel, const int min, const int max, std::vector<std::vector<std::vector<int>>> *image, const int max_depth, const color &background)
 {
     std::ofstream outfile;
@@ -156,11 +172,11 @@ int main()
 {
     // Image
 
-    const auto aspect_ratio = 16.0 / 9.0;
-    const int image_width = 400;
-    const int image_height = static_cast<int>(image_width / aspect_ratio);
-    const int samples_per_pixel = 25;
-    const int max_depth = 25;
+    auto aspect_ratio = 16.0 / 9.0;
+    int image_width = 400;
+    int image_height = static_cast<int>(image_width / aspect_ratio);
+    int samples_per_pixel = 25;
+    int max_depth = 25;
 
     // World
     hittable_list world;
@@ -204,9 +220,17 @@ int main()
         lookat = point3(0, 0, 0);
         vfov = 20.0;
         break;
-    default:
     case 5:
         background = color(0.70, 0.80, 1.00);
+        break;
+    default:
+    case 6:
+        world = simple_light();
+        samples_per_pixel = 400;
+        background = color(0, 0, 0);
+        lookfrom = point3(26, 3, 6);
+        lookat = point3(0, 2, 0);
+        vfov = 20.0;
         break;
     }
 
