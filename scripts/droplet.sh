@@ -14,7 +14,6 @@ RESULTS_DIR=doresults
 
 # ============================== SETUP DROPLET ==============================
 
-
 NUMBER_OF_DROPLETS=$( doctl compute droplet list --format "PublicIPv4" | wc -l )
 if [ $NUMBER_OF_DROPLETS -eq 2 ]
 then
