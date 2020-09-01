@@ -239,7 +239,6 @@ int main()
         lookat = point3(0, 0, 0);
         vfov = 20.0;
         break;
-    default:
     case 5:
         world = simple_light();
         samples_per_pixel = 400;
@@ -248,6 +247,7 @@ int main()
         lookat = point3(0, 2, 0);
         vfov = 20.0;
         break;
+    default:
     case 6:
         world = cornell_box();
         aspect_ratio = 1.0;
