@@ -242,8 +242,8 @@ int main()
     default:
     case 5:
         world = simple_light();
-        image_width = 1200;
-        samples_per_pixel = 500;
+        image_width = 400;
+        samples_per_pixel = 50;
         background = color(0, 0, 0);
         lookfrom = point3(26, 3, 6);
         lookat = point3(0, 2, 0);
@@ -276,19 +276,22 @@ int main()
               << image_width << ' ' << image_height << "\n255\n";
 
     // TODO: arreglar la asignacion de trabajo al ultimo thread, a no ser que sea multiplo, se quedan filas sin hacer
-    std::vector<std::vector<std::vector<std::vector<int>>>> image_fragments(k, std::vector<std::vector<std::vector<int>>>());
+    std::vector<std::vector<std::vector<std::vector<int>>>> image_fragments(k + 1, std::vector<std::vector<std::vector<int>>>());
     std::vector<std::thread> workers;
     for (unsigned n = 0; n < k; n++)
     {
         workers.push_back(std::thread(generate_image_row, world, cam, image_width, image_height, samples_per_pixel, image_height - 1 - (n + 1) * batch_size, image_height - 1 - n * batch_size, &image_fragments[n], max_depth, background));
     }
 
+    // master thread does the rest
+    generate_image_row(world, cam, image_width, image_height, samples_per_pixel, 0, image_height - k * batch_size, &image_fragments[k], max_depth, background);
+
     for (unsigned n = 0; n < k; n++)
     {
         workers[n].join();
     }
 
-    for (unsigned n = 0; n < k; n++)
+    for (unsigned n = 0; n <= k; n++)
     {
         for (unsigned i = 0; i < image_fragments[n].size(); i++)
         {
