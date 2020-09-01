@@ -242,8 +242,8 @@ int main()
     default:
     case 5:
         world = simple_light();
-        image_width = 400;
-        samples_per_pixel = 50;
+        image_width = 1000;
+        samples_per_pixel = 700;
         background = color(0, 0, 0);
         lookfrom = point3(26, 3, 6);
         lookat = point3(0, 2, 0);
@@ -275,7 +275,6 @@ int main()
     std::cout << "P3\n"
               << image_width << ' ' << image_height << "\n255\n";
 
-    // TODO: arreglar la asignacion de trabajo al ultimo thread, a no ser que sea multiplo, se quedan filas sin hacer
     std::vector<std::vector<std::vector<std::vector<int>>>> image_fragments(k + 1, std::vector<std::vector<std::vector<int>>>());
     std::vector<std::thread> workers;
     for (unsigned n = 0; n < k; n++)

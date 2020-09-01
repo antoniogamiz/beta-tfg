@@ -9,6 +9,8 @@
 DROPLET_NAME="RayTracer"
 DROPLET_SIZE="c-32"
 BRANCH_NAME="raytracing-bookseries"
+LOGFILE="run.log"
+RESULTS_DIR=doresults
 
 # ============================== SETUP DROPLET ==============================
 
@@ -40,7 +42,9 @@ done
 
 # ============================== STORE RESULTS ==============================
 
-rsync -a root@$DROPLET_IP:/root/repo/result.png doresults/result.png
+mkdir -p $RESULTS_DIR
+
 rsync -a root@$DROPLET_IP:/root/repo/test.ppm doresults/test.ppm
+rsync -a root@$DROPLET_IP:/root/repo/$LOGFILE doresults/$LOGFILE
 
 doctl compute droplet delete $DROPLET_NAME
