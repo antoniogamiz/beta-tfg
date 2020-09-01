@@ -2,7 +2,6 @@
 snap install doctl
 apt update
 apt install -y make g++ mutt sendmail netpbm
-# doctl auth init --access-token $DO_TOKEN
 
 # run
 begin=$(date +%s)
