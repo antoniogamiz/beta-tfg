@@ -24,27 +24,25 @@ else
     key_md5="${key_md5##MD5:}"
 
     doctl compute droplet create $DROPLET_NAME --image ubuntu-20-04-x64 --size c-32 --region nyc1 --ssh-keys $key_md5
-    sleep 3
-    doctl compute ssh $DROPLET_NAME --ssh-command 'git clone -b $BRANCH_NAME https://github.com/antoniogamiz/tfg.git repo && cd repo && nohup bash scripts/run-raytracer.sh &'
+    sleep 10
+    command="git clone -b $BRANCH_NAME https://github.com/antoniogamiz/tfg.git repo && cd repo && nohup bash scripts/run-raytracer.sh &"
+    doctl compute ssh $DROPLET_NAME --ssh-command "$command"
 fi
 
 # ============================== CHECK PROGRESS ==============================
 
-DROPLET_IP=$( doctl compute droplet list --format "PublicIPv4" | tail -n1  | tr -d '\n')
-
 output=$(doctl compute ssh $DROPLET_NAME --ssh-command "cd repo && bash scripts/progress.sh")
-while [ "$output" != "Ray tracer is not running!" ]:
-do
-    echo $output
-    sleep 2
-    output=$(doctl compute ssh $DROPLET_NAME --ssh-command "cd repo && bash scripts/progress.sh")
-done
 
 # ============================== STORE RESULTS ==============================
+DROPLET_IP=$( doctl compute droplet list --format "PublicIPv4" | tail -n1  | tr -d '\n')
 
 mkdir -p $RESULTS_DIR
 
 rsync -a root@$DROPLET_IP:/root/repo/test.ppm doresults/test.ppm
 rsync -a root@$DROPLET_IP:/root/repo/$LOGFILE doresults/$LOGFILE
+
+pnmtopng doresults/test.ppm > doresults/result.png
+cat doresults/$LOGFILE
+eog doresults/result.png
 
 doctl compute droplet delete $DROPLET_NAME

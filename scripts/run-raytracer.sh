@@ -7,9 +7,7 @@ begin=$(date +%s)
 make
 end=$(date +%s)
 
-# convert results
-pnmtopng test.ppm > result.png
-
 # send results
 LOGFILE="run.log"
-echo "Execution time: $(($end-$begin))" > $LOGFILE
+echo "Execution time: $(($end-$begin))" >
+echo "File size: $(du -sh test.ppm)" >> $LOGFILE
