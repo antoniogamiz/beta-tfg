@@ -17,6 +17,10 @@ do
 
   for entry in "$PROGRESS_DIR"/*
   do
+    if [ ! -s $entry ]; then
+      continue
+    fi
+    echo $entry
     local_progress=($(awk '/./{line=$0} END{print line}' $entry))
     current_iterations=$(($current_iterations + ${local_progress[0]}))
     total_iterations=$(($total_iterations + ${local_progress[1]}))

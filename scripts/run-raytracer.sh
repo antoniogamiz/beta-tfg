@@ -12,8 +12,5 @@ end=$(date +%s)
 pnmtopng test.ppm > result.png
 
 # send results
-echo "Execution time: $(($end-$begin))" | mutt -a "./result.png" -s "Run $(date)" -- antoniogamiz10@gmail.com
-
-# doctl compute droplet delete RayTracer
-# to check progress: doctl compute ssh RayTracer --ssh-command 'cd repo && bash show_progress.sh'
-# output:  doctl compute ssh RayTracer --ssh-command 'tail repo/nohup.out'
+BODY="Execution time: $(($end-$begin)), File size: $(du -sh test.ppm)"
+echo $BODY | mutt -a "./result.png" -s "Run $(date)" -- antoniogamiz10@gmail.com
