@@ -17,7 +17,8 @@ First you need to install [doctl](). You can check [this tutorial](https://www.d
 To compile the latex code you need to run:
 
 ~~~shell
-pdflatex -synctex=1 -interaction=nonstopmode --shell-escape --output-directory=build %.tex
+cd doc/latex # always compile from this directory
+pdflatex -synctex=1 -interaction=nonstopmode --shell-escape --output-directory=build master.tex
 ~~~
 
 This project contains a lot of Tikz figures so they are cached the first time they are generated. To edit or add new figures, see [figures directory](doc/latex/figures). This has been done following the instructions on [this question](https://tex.stackexchange.com/questions/482557/how-to-externalize-tikz-pictures).
