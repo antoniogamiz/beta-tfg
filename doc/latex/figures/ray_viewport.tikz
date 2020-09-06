@@ -1,0 +1,43 @@
+\begin{figure}[H]
+\centering
+\tdplotsetmaincoords{70}{150}
+\tdplotsetrotatedcoords{0}{90}{90}
+\begin{tikzpicture} [
+scale=2,
+tdplot_main_coords, 
+tdplot_rotated_coords,
+axis/.style={->,orange,thin},
+rect/.style={black,thin},
+rectuv/.style={red,thin,dashed,->}
+]
+
+% axis
+\pgfmathsetmacro{\ax}{1}
+\draw[axis] (0,0,0) -- (\ax,0,0) node[anchor=north east]{$x_+$};
+\draw[axis] (0,0,0) -- (0,\ax,0) node[anchor=north west]{$y_+$};
+\draw[axis] (0,0,0) -- (0,0,\ax) node[anchor=south]{$z_+$};
+
+% viewport
+\def\x{1};
+\def\y{0.5};
+\def\z{-2};
+\draw[rect] (\x,\y,\z) -- (-\x,\y,\z);
+\draw[rect] (\x,\y,\z) -- (\x,-\y,\z);
+\draw[rect] (-\x,\y,\z) -- (-\x,-\y,\z);
+\draw[rect] (\x,-\y,\z) -- (-\x,-\y,\z);
+\node[scale=0.7] at (\x+0.65,\y,\z) {$viewport$};
+
+% lineas
+\node[scale=0.7] at (-0.25, 0,0.15) {$origen$};
+\draw[dashed,-|] (0,0,0) -- (0,0,\z);
+
+% u,v
+\draw[rectuv] (-\x,-\y*0.35,\z) -- (\x*0.4,-\y*0.3,\z);
+\node[red, scale=0.55] at (\x*0.2,-0.1 ,\z) {$u$};
+\draw[rectuv] (\x*0.4,-\y,\z) -- (\x*0.4,-\y*0.35,\z);
+\node[red, scale=0.55] at (\x*0.5,-0.3 ,\z) {$v$};
+% ray
+\draw[thick, green,->] (0,0,0) -- (\x*0.4,-\y*0.35,\z);
+\node[scale=0.4] at (\x*0.6,0,\z*0.4) {$ray$};
+\end{tikzpicture}
+\end{figure}

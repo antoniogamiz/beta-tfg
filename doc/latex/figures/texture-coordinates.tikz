@@ -1,0 +1,20 @@
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+
+\def\x{2.0}
+\def\y{1.0}
+
+% rectangle
+\draw[line width=1pt](-\x,\y)--(\x,\y);
+\draw[line width=1pt](\x,\y)--(\x,-\y);
+\draw[line width=1pt](\x,-\y)--(-\x,-\y);
+\draw[line width=1pt](-\x,-\y)--(-\x,\y);
+
+% u,v 
+\draw[line width=1pt, blue, dashed,->](-\x,\y+0.1)--(\x,\y+0.1) node[anchor=south] {$u$};
+\draw[line width=1pt, blue, dashed,->](-\x-0.1,-\y)--(-\x-0.1,\y) node[anchor=north east] {$v$};
+
+\end{tikzpicture}
+\caption{Coordenadas de textura}
+\end{figure}

@@ -1,0 +1,16 @@
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \draw[line width=1pt](-2.5,0)--(2.5,0);
+  \draw[line width=1pt, dashed](0,-2.5)--(0,2.5);
+  \draw[line width=1pt,blue,-stealth](-2,2)--(0,0);
+  \draw[line width=1pt,blue,-stealth](0,0)--(1,-2);
+  \draw [domain=90:135] plot ({0.5*cos(\x)}, {0.5*sin(\x)});
+  \draw [domain=270:295] plot ({0.5*cos(\x)}, {0.5*sin(\x)});
+  \node[] at (-2, 0.3) {$\eta$};
+  \node[] at (-2, -0.3) {$\eta'$};
+  \node[] at (-0.3, 0.6) {$\theta$};
+  \node[] at (0.25, -0.8) {$\theta'$};
+\end{tikzpicture}
+\caption{Refracción}
+\end{figure}
