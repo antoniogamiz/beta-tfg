@@ -22,3 +22,7 @@ pdflatex -synctex=1 -interaction=nonstopmode --shell-escape --output-directory=b
 ~~~
 
 This project contains a lot of Tikz figures so they are cached the first time they are generated. To edit or add new figures, see [figures directory](doc/latex/figures). This has been done following the instructions on [this question](https://tex.stackexchange.com/questions/482557/how-to-externalize-tikz-pictures).
+
+### References
+
+- Some latex code have been based on [this source](https://github.com/VictorMorenoJimenez/tfg2020/tree/master/doc/latex).
