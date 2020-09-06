@@ -9,12 +9,65 @@
 \usepackage[utf8]{inputenc}
 \usepackage{amsmath}
 \usepackage[shortlabels]{enumitem}
+\usepackage{caption}
+\usepackage{subcaption}
 \usepackage{mathtools}
 \usepackage{xcolor}
 \usepackage{float}
 \usepackage{url}
 \usepackage{tikz-3dplot}
 \usetikzlibrary{patterns}
+\usetikzlibrary{calc}
+\usepackage{pgfplots}
+
+% https://tex.stackexchange.com/questions/482557/how-to-externalize-tikz-pictures
+% critical to add --shell-escape to pdflatex options
+\usetikzlibrary{external}
+\tikzexternalize[prefix=figures/]
+
+\newcommand{\inputtikz}[1]{%
+  \tikzsetnextfilename{#1}%
+  \input{figures/#1.tikz}%
+}
+
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+\usepackage{xcolor}
+\definecolor{commentgreen}{RGB}{2,112,10}
+\definecolor{eminence}{RGB}{108,48,130}
+\definecolor{weborange}{RGB}{255,165,0}
+\definecolor{frenchplum}{RGB}{129,20,83}
+
+\usepackage{listings}
+\lstset {
+    language=C++,
+    frame=tb,
+    tabsize=2,
+    xleftmargin=5.0ex, 
+    showstringspaces=false,
+    numbers=left,
+    %upquote=true,
+    commentstyle=\color{commentgreen},
+    keywordstyle=\color{eminence},
+    stringstyle=\color{red},
+    basicstyle=\small\ttfamily, % basic font setting
+    emph={int,char,double,float,unsigned,void,bool},
+    emphstyle={\color{blue}},
+    %escapechar=\&,
+    % keyword highlighting
+    classoffset=1, % starting new class
+    otherkeywords={>,<,.,;,-,!,=,~},
+    morekeywords={>,<,.,;,-,!,=,~,&},
+    keywordstyle=\color{weborange},
+    classoffset=0,
+}
 
 \newtheorem{theorem}{Teorema}
 \newtheorem{lemma}[theorem]{Lema}
@@ -46,49 +99,7 @@ Las normales siempre apuntan hacia fuera de la superficie. Si en su lugar tomár
 
 Para poder trazar rayos a través de nuestro \textit{viewport}, primero es necesario definir una cámara, con un origen, apuntando hacia un determinado \textit{viewport}.
 
-\begin{figure}[H]
-\centering
-\tdplotsetmaincoords{70}{150}
-\tdplotsetrotatedcoords{0}{90}{90}
-\begin{tikzpicture} [
-scale=2,
-tdplot_main_coords, 
-tdplot_rotated_coords,
-axis/.style={->,orange,thin},
-rect/.style={black,thin},
-rectuv/.style={red,thin,dashed,->}
-]
-
-% axis
-\pgfmathsetmacro{\ax}{1}
-\draw[axis] (0,0,0) -- (\ax,0,0) node[anchor=north east]{$x_+$};
-\draw[axis] (0,0,0) -- (0,\ax,0) node[anchor=north west]{$y_+$};
-\draw[axis] (0,0,0) -- (0,0,\ax) node[anchor=south]{$z_+$};
-
-% viewport
-\def\x{1};
-\def\y{0.5};
-\def\z{-2};
-\draw[rect] (\x,\y,\z) -- (-\x,\y,\z);
-\draw[rect] (\x,\y,\z) -- (\x,-\y,\z);
-\draw[rect] (-\x,\y,\z) -- (-\x,-\y,\z);
-\draw[rect] (\x,-\y,\z) -- (-\x,-\y,\z);
-\node[scale=0.7] at (\x+0.65,\y,\z) {$viewport$};
-
-% lineas
-\node[scale=0.7] at (-0.25, 0,0.15) {$origen$};
-\draw[dashed,-|] (0,0,0) -- (0,0,\z);
-
-% u,v
-\draw[rectuv] (-\x,-\y*0.35,\z) -- (\x*0.4,-\y*0.3,\z);
-\node[red, scale=0.55] at (\x*0.2,-0.1 ,\z) {$u$};
-\draw[rectuv] (\x*0.4,-\y,\z) -- (\x*0.4,-\y*0.35,\z);
-\node[red, scale=0.55] at (\x*0.5,-0.3 ,\z) {$v$};
-% ray
-\draw[thick, green,->] (0,0,0) -- (\x*0.4,-\y*0.35,\z);
-\node[scale=0.4] at (\x*0.6,0,\z*0.4) {$ray$};
-\end{tikzpicture}
-\end{figure}
+\inputtikz{ray_viewport}
 
 Esto permite, usando $u$ y $v$, trazar rayos que pasen por todos los píxeles. Cualquier punto del viewport puede ser expresado como una combinación lineal de $u$ y $v$: 
 \[
@@ -102,45 +113,7 @@ Definir el viewport para cada imagen generada puede ser algo engorroso. Por ello
 
 Para especificar la altura del viewport, es conveniente usar un parámetro que sea medido en ángulos, para poder hacer \textit{zooming} de forma más cómodo. Para ello, se puede usar la siguiente relación matemática:
 
-\begin{figure}[H]
-\centering
-\tdplotsetmaincoords{70}{150}
-\tdplotsetrotatedcoords{0}{90}{90}
-\begin{tikzpicture} [
-scale=2,
-tdplot_main_coords, 
-tdplot_rotated_coords,
-axis/.style={->,orange,thin},
-rect/.style={black,thin},
-rectuv/.style={red,thin,dashed,->}
-]
-
-% axis
-\pgfmathsetmacro{\ax}{1}
-\draw[axis] (0,0,0) -- (\ax,0,0) node[anchor=north east]{$x_+$};
-\draw[axis] (0,0,0) -- (0,\ax,0) node[anchor=north west]{$y_+$};
-\draw[axis] (0,0,0) -- (0,0,\ax) node[anchor=south]{$z_+$};
-\draw[->,orange,thin,dashed] (0,0,0) -- (0,0,-2);
-% viewport
-\def\x{1};
-\def\y{0.5};
-\def\z{-2};
-\draw[rect] (\x,\y,\z) -- (-\x,\y,\z);
-\draw[rect] (\x,\y,\z) -- (\x,-\y,\z);
-\draw[rect] (-\x,\y,\z) -- (-\x,-\y,\z);
-\draw[rect] (\x,-\y,\z) -- (-\x,-\y,\z);
-\node[scale=0.7] at (\x+0.65,\y,\z) {$viewport$};
-
-
-\draw[dashed,-|] (0,0,0) -- (0,\y,\z);
-\draw[dashed,-|] (0,0,0) -- (0,-\y,\z);
-
-\draw [domain=-105:-75, dashed] plot (0,{0.5*cos(\x)}, {0.5*sin(\x)});
-\node[scale=0.7] at (0,-0.08,-0.6) {$\theta$};
-\draw[|-|,red,thin,dashed] (0,0,\z) -- (0,\y,\z);
-\node[scale=0.7, red] at (0,\y*0.45,\z+0.08) {$h$};
-\end{tikzpicture}
-\end{figure}
+\inputtikz{fov_viewport}
 
 De la figura se puede deducir fácilmente que $h=\sin\frac{\theta}{2}$. Usando la definición de la tangente de un ángulo, se tiene que $h=\sin\frac{\theta}{2}=\tan\frac{\theta}{2}\cos\frac{\theta}{2}$. Para dejar esa expresión un poco más \textit{simple}, es posible asumir que la distancia del origen de la cámara al centro del viewport (\textit{focal distance}) va a ser siempre 1, luego $h=\tan\frac{\theta}{2}$.
 
@@ -150,46 +123,7 @@ En los dos apartados anteriores, la cámara ha estado situada en el origen y mir
 
 A la posición donde ponemos la cámara (el centro), se le domina \textit{lookfrom}, y al punto dónde mira, \textit{lookat}. También se podría usar directamente una dirección. Además de estos dos puntos, es necesario saber la rotación de la cámara respecto de la recta formada por esos dos puntos. Esto es necesario ya que aunque se sepa en qué dirección apunta la cámara, no es posible saber cómo de inclinada está (por ejemplo, inclinar la cabeza). Para ello, se define un verctor que apunte \textit{hacia arriba} para la cámara. Este vector debe estar en el plano ortogonal a la dirección formada por los dos puntos anteriores y se denotará por \textit{view up} o \textit{vup}:
 
-\begin{figure}[H]
-\centering
-\tdplotsetmaincoords{70}{150}
-\tdplotsetrotatedcoords{0}{90}{90}
-\begin{tikzpicture} [
-scale=2,
-tdplot_main_coords, 
-tdplot_rotated_coords,
-axis/.style={->,orange,thin},
-rect/.style={black,thin},
-rectuv/.style={red,thin,dashed,->}
-]
-
-% viewport
-\def\x{1.5};
-\def\y{0.6};
-\def\z{0};
-\draw[rect] (\x,\y,\z) -- (-\x,\y,\z);
-\draw[rect] (\x,\y,\z) -- (\x,-\y,\z);
-\draw[rect] (-\x,\y,\z) -- (-\x,-\y,\z);
-\draw[rect] (\x,-\y,\z) -- (-\x,-\y,\z);
-
-\node[red] at (0,0,0) {\textbullet};
-\node[red] at (0,-1,-3) {\textbullet};
-\draw[red,thin,dashed,->] (0,0,0)--(0,-1,-2.96);
-\node[scale=0.6] at (0,-1,-2.7) {$lookat$};
-
-\def\d{0.3}
-\draw[red,thin,dashed,->] (0,0,0)--(0,\d,0);
-\draw[red,thin,dashed,->] (0,0,0)--(0,-\d,0);
-\draw[red,thin,dashed,->] (0,0,0)--(\d,0,0);
-\draw[red,thin,dashed,->] (0,0,0)--(-\d,0,0);
-\draw[red,thin,dashed,->] (0,0,0)--(\d,\d,0);
-\draw[red,thin,dashed,->] (0,0,0)--(-\d,\d,0);
-\draw[red,thin,dashed,->] (0,0,0)--(-\d,-\d,0);
-\draw[red,thin,dashed,->] (0,0,0)--(\d,-\d,0);
-
-\node[scale=0.6] at (0.9,0.34,0.1) {$lookfrom$};
-\end{tikzpicture}
-\end{figure}
+\inputtikz{lookfrom-lookat}
 
 Con estos tres elementos (lookfrom, lookat y vup) ya es posible formar una base ortonormal describiendo la orientación de nuestra cámara. Para ello sólo hace falta tomar como base los vectores $(u,v,w)$ definidos por:
 \[
@@ -203,37 +137,7 @@ v = \displaystyleº\frac{w\times u}{w\times u}\\
 
 Consiguiendo algo similar a la siguiente figura:
 
-\begin{figure}[H]
-\centering
-\tdplotsetmaincoords{70}{150}
-\tdplotsetrotatedcoords{0}{90}{90}
-\begin{tikzpicture} [
-scale=2,
-tdplot_main_coords, 
-tdplot_rotated_coords,
-axis/.style={->,orange,thin},
-rect/.style={black,thin},
-rectuv/.style={red,thin,dashed,->}
-]
-
-% viewport
-\def\x{1.5};
-\def\y{0.6};
-\def\z{0};
-\draw[rect] (\x,\y,\z) -- (-\x,\y,\z);
-\draw[rect] (\x,\y,\z) -- (\x,-\y,\z);
-\draw[rect] (-\x,\y,\z) -- (-\x,-\y,\z);
-\draw[rect] (\x,-\y,\z) -- (-\x,-\y,\z);
-
-\node[red] at (0,0,0) {\textbullet};
-\node[red] at (0,-1,-3) {\textbullet};
-\draw[red,thin,dashed,->] (0,0,0)--(0,-1,-2.96);
-
-\draw[green,thin,dashed,->] (0,0,0)--(0,1*0.25,2.96*0.25) node[anchor=south] {$w$};
-\draw[orange,thin,dashed,->] (0,0,0)--(0,1,0) node[anchor=south] {$v$};
-\draw[blue,thin,dashed,->] (0,0,0)--(1,0,0) node[anchor=south] {$u$};
-\end{tikzpicture}
-\end{figure}
+\inputtikz{uvw}
 
 \subsection{Depth of field}
 
@@ -273,46 +177,13 @@ En nuestro programa, tomamos $A=\frac{1}{nsamples}$, donde $nsamples$ es el núm
 
 Los objetos difusos o mates no emiten luz, simplemente toman el color del ambiente en el que se encuentran, alterandolo ligeramente con su propio color. La dirección de la luz reflejada por un material difuso es aleatoria.
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-\draw [domain=30:150] plot ({3*cos(\x)}, {0.7*sin(\x)});
-\draw [domain=0:360] plot ({cos(\x)}, {1.69+sin(\x)});
-\draw[red,thin,->] (-3,2)--({3*cos(110)},{0.7*sin(110)})--({cos(210)}, {1.69+sin(210)})--({3*cos(100)},{0.7*sin(100)})--(-1.5,1.3);
-\draw[blue,thin,->] (-3.1,1.9)--({3*cos(115)},{0.7*sin(115)})--({cos(190)}, {1.69+sin(190)})--(-1.5,2);
-\draw[green,thin,->] (-3.2,1.8)--({3*cos(120)},{0.7*sin(120)})--(-1.2,1.3);
-\end{tikzpicture}
-\end{figure}
-
+\inputtikz{diffuse}
 
 \subsubsection{Elección de rayos}
 
 Los rayos también podrían ser absorvidos en lugar de reflejados. Cuanto más oscura sea la superficie, más probable hay de que sea absorvido.
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-
-\def\r{1.15};
-\def\l{4};
-\def\R{5.15};
-\def\a{315};
-\draw[red,dashed] (0,0) circle (\r);
-\draw [domain=100:160] plot ({\R*cos(\a)+\l*cos(\x)}, {\R*sin(\a)+\l*sin(\x)});
-\node[] at ({\r*cos(\a)},{\r*sin(\a)}) {\textbullet};
-\node[] at (0,0) {\textbullet};
-\node[red] at (-0.5,-0.2) {\textbullet};
-\node[red,scale=0.8] at (-0.5,0.1) {$S$};
-\node[] at ({\r*cos(\a)+0.2},{\r*sin(\a)-0.1}) {$P$};
-\draw[thin,->]({\r*cos(\a)},{\r*sin(\a)})--(0.03,-0.07);
-\node[] at (0.5, -0.3) {$n$};
-\node[scale=0.7] at (0.5, 0.1) {$P+n$};
-\draw[red,thin,->]({\r*cos(\a)},{\r*sin(\a)})--(-0.5,-0.2);
-
-\node[scale=0.7,orange] at (-0.6, -1.6 ) {$ray$};
-\draw[orange,thick,->](-0.7,-2)--({\r*cos(\a)},{\r*sin(\a)});
-\end{tikzpicture}
-\end{figure}
+\inputtikz{diffuse-ray-election}
 
 El punto $S$ es eligido de forma aleatoria dentro de la esfere tangente a $P$ de radio unidad (la de centro $P+n$). El nuevo rayo reflejado será el que pasa por el punto $P$ con dirección $S-P$.
 
@@ -328,24 +199,7 @@ Después de leer \cite{lambertian}, no me queda muy claro esto.
 
 En el caso de metales suaves el rayo no es dispersado aleatoriamente, sino que es reflejado con el mismo ángulo de incidencia pero al otro lado de la normal (ver \cite{beam}).
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-  \draw[line width=1pt](-4,0)--(4,0);
-  \draw[line width=1pt,blue,-stealth](0,0)--(2,2) node[anchor=south west]{$r$};
-  \draw[line width=1pt,red,-stealth](-2,2)--(0,0) node[anchor=north east]{$v$};
-  \draw [domain=45:135] plot ({0.5*cos(\x)}, {0.5*sin(\x)});
-  \node[] at (0.25, 0.7) {$\theta$};
-  \node[] at (-0.25, 0.7) {$\theta$};
-  \draw[line width=1pt,red,-stealth](0,0)--(2,-2) node[anchor=north east]{$v$};
-  \draw[line width=1pt,black,dashed,->](0,0)--(0,1.5) node[anchor=south]{$n$};
-  \draw[line width=1pt,dashed,->](2,-2)--(2,0) node[anchor=north west]{$b$};
-  \draw[line width=1pt,dashed,->](2,0)--(2,2) node[anchor=north west]{$b$};
-  \draw[line width=1pt,dashed,|-|](0,0)--(0,-2);
-  \node[] at (-0.8, -1) {$|v|\cos\theta$};
-\end{tikzpicture}
-\caption{Reflexión}
-\end{figure}
+\inputtikz{metal}
 
 A partir del dibujo se ve que la dirección del rayo reflejado es $r=v+2b$. El vector $b$ puede ser calculado usando $n$, que es unitario, y el hecho de que $v\cdot n=|v||n|\cos\theta=|v|\cos\theta$. Como $\angle (v,n)> \frac{\pi}{2}$, $dot(v,n)$ es negativo, luego es necesario añadir un signo menos, quedando:
 \[
@@ -354,21 +208,7 @@ r=v-2dot(v,n)*n
 
 Una vez calculado el vector reflejado, es posible añadir un grado de \textit{fuzziness} al metal sumando un vector aleatorio a $r$. 
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-  \draw[line width=1pt](-4,0)--(4,0);
-  \draw[line width=1pt,blue,-stealth](0,0)--(2,2);
-  \node[blue] at (1, 1.3) {$r$};
-  \draw[line width=1pt,red,-stealth](-2,2)--(0,0);
-  \node[red] at (-1, 1.3) {$v$};
-  \draw[line width=1pt,green,-stealth](0,0)--(2.2,1.8);
-  \node[green] at (1, 0.6) {$r'$};
-  \draw[line width=1pt,dashed,-stealth](2,2)--(2.2,1.8);
-  \node[scale=0.6] at (2.2, 2.05) {$p$};
-  \draw[dashed] (2,2) circle (0.5);
-\end{tikzpicture}
-\end{figure}
+\inputtikz{metal-ray-election}
 
 
 donde $p\in B(0,1)$, es un vector aleatorio. Cuanto más grande sea el radio de la bola escogida, más borrosa se verá la imagen. Hay que ser precavido con la elección del radio, ya que si es demasiado grande, el rayo reflejado podría volver a intersecar nuestra superficie.
@@ -381,56 +221,19 @@ Cuando un rayo alcanza un material dieléctrico (como agua, cristal, etc.), el r
 \]
 donde $\theta$ y $\theta'$ son los ángulos, medidos desde la normal, y $\eta$ y $\eta'$ son los coeficientes de reflexión de los medios, respectivamente.
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-  \draw[line width=1pt](-2.5,0)--(2.5,0);
-  \draw[line width=1pt, dashed](0,-2.5)--(0,2.5);
-  \draw[line width=1pt,blue,-stealth](-2,2)--(0,0);
-  \draw[line width=1pt,blue,-stealth](0,0)--(1,-2);
-  \draw [domain=90:135] plot ({0.5*cos(\x)}, {0.5*sin(\x)});
-  \draw [domain=270:295] plot ({0.5*cos(\x)}, {0.5*sin(\x)});
-  \node[] at (-2, 0.3) {$\eta$};
-  \node[] at (-2, -0.3) {$\eta'$};
-  \node[] at (-0.3, 0.6) {$\theta$};
-  \node[] at (0.25, -0.8) {$\theta'$};
-\end{tikzpicture}
-\caption{Refracción}
-\end{figure}
+\inputtikz{refraction}
 
 Para determinar la dirección del rayo refractado es necesario resolver la ley de Snell, averiguando el valor de $\sin\theta'$, es decir, hay que resolver $\sin\theta'=\frac{\eta}{\eta'}\sin\theta$.
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-  \draw[line width=1pt](-2.5,0)--(2.5,0);
-  \draw[line width=1pt, dashed](0,-2.5)--(0,2.5);
-  \draw[line width=1pt,blue,-stealth](-2,2)--(0,0);
-  \draw[line width=1pt,blue,-stealth](0,0)--(1,-2);
-  \draw [domain=90:135] plot ({0.5*cos(\x)}, {0.5*sin(\x)});
-  \draw [domain=270:295] plot ({0.5*cos(\x)}, {0.5*sin(\x)});
-  \node[] at (-0.3, 0.6) {$\theta$};
-  \node[] at (0.25, -0.8) {$\theta'$};
-  \node[blue] at (-2, 1.7) {$R$};
-  \node[blue] at (1, -2.3) {$R'$};
-  \draw[line width=1pt,red,dashed,->](0,0)--(0,-2);
-  \node[red,scale=0.8] at (-0.4, -1.2) {$R'_{||}$};
-  \draw[line width=1pt,red,dashed,->](0,0)--(1,0);
-  \node[red,scale=0.8] at (0.5, 0.3) {$R'_{\perp}$};
-  \draw[line width=1pt,red,dashed](1,0)--(1,-2);
-  \draw[line width=1pt,red,dashed](0,-2)--(1,-2);
-  \draw[line width=1pt,->](0,0)--(0,0.8);
-  \draw[line width=1pt,->](0,0)--(0,-0.8);
-  \node[] at (0.3, 0.8) {$n$};
-  \node[] at (-0.3, -0.6) {$n'$};
-\end{tikzpicture}
-\end{figure}
+\inputtikz{refraction2}
 
 Sea $R'$ el rayo refractado y $R$ el rayo incidente. $n$ y $n'$ son las normales a cada lado de la superficie. $R'$ se puede expresar como la suma de dos vectores, uno perpendicular y otro paralelo a $n'$: $R'=R'_{\perp}+R'_{||}$. Ahora hay que determinar esos dos vectores
+
 \begin{itemize}
 \item Usando que $\sin\theta=R+\cos\theta n$, se tiene que $R'_{\perp}=\sin\theta'=\frac{\eta}{\eta'}\sin\theta=\frac{\eta}{\eta'}(R+\cos\theta n)$.
 \item Asumiendo que $R'$ es unitario, se puede usar el teorema de Pitágoras para calcular el módulo de $R'_{||}$. Como fue asumido que las normales apuntarían hacia afuera, no se puede usar $n'$, sino que hay que usar $n$, pero $n'=-n$. Luego: $R'_{||}=-\sqrt{1-|R'_{\perp}|^2}n$.
 \end{itemize}
+
 Ahora queda resolver la ecuación para $\cos\theta$. Suponiendo que $R$ sea unitario, se tiene que $dot(R,n)=|R||n|\cos\theta=\cos\theta$. Como el ángulo entre $R$ y $n$ es superior a 90 grados, su producto escalar será negativo, luego es necesario poner un signo menos, quedando:
 \[
 \begin{array}{ll}
@@ -459,34 +262,11 @@ Hay muchas elecciones diferentes para englobar a los objetos geométricos. En es
 
 El hecho de que sean cubos es benificioso porque se puede usar el \textit{slab method} para calcular si un rayo interseca o no cierto volumen.
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[scale=2]
-\draw[pattern=north west lines, pattern color=blue,draw=none] (-0.5,-1) rectangle (0.5,1);
-\draw[pattern=north west lines, pattern color=green,draw=none] (-1,-0.5) rectangle (1,0.5);
-\draw[line width=1pt,blue](-0.5,-1)--(-0.5,1) node[black,anchor=south west] {$x_0$};
-\draw[line width=1pt,blue](0.5,-1)--(0.5,1) node[black,anchor=south west] {$x_1$};
-\draw[line width=1pt,green](-1,0.5)--(1,0.5) node[black,anchor=west] {$y_1$};
-\draw[line width=1pt,green](-1,-0.5)--(1,-0.5) node[black,anchor=west] {$y_0$};
-\end{tikzpicture}
-\caption{AABB en 2D}
-\end{figure}
+\inputtikz{aabb-two-dimensions}
 
 Para comprobar si un rayo interseca un AABB de cualquier dimensión, simplemente hay que comprobar si el rayo interseca cada uno de los intervalos que definen cada \textit{slab} del AABB (en $n$ dimensiones, un AABB es un cubo $n$-dimensional).
 
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}[scale=2]
-\draw[line width=1pt,blue](-0.5,-1)--(-0.5,1);
-\draw[line width=1pt,blue](0.5,-1)--(0.5,1);
-\node[black] at (-0.5,-1.1) {$x_0$};
-\node[black] at (0.5,-1.1) {$x_1$};
-\draw[line width=1pt,black,->](-0.8,-0.7)--(0.8,0.5);
-\node[black] at (-0.34,-0.6) {$t_0$};
-\node[black] at (0.4,0) {$t_1$};
-\end{tikzpicture}
-\caption{Intersección de un rayo con un slab}\label{slab_intersection}
-\end{figure}
+\inputtikz{slab-method}
 
 Los slabs son de $n-1$ dimensiones, luego en nuestro caso (tres dimensiones), los slabs están representados por planos. Con averiguar la intersección de un slab es suficiente, ya que los demás se harán de forma análoga. En el caso de la figura \ref{slab_intersection}, el slab estará delimitado por dos planos con ecuaciones $x=x_0$ y $x=x_1$, respectivamente. Los rayos son descritos por la función:
 \[
@@ -515,6 +295,189 @@ El problema restante es que si $b_x=0$ y $x_0-A_x=0$ o $x_1-A_x=0$ (el rayo esta
 
 Por último, queda ver una forma de comprobar si dos intervalos arbitrarios se solapan. Para ello, simplemente hay que calcular el máximo de los inicios, $f$, y el mínimo de los finales, $F$ y ver si $f<F$, en cuyo caso, los intervalos se solapan en los puntos contenidos en $[f,F]$. 
 
+\section{Texturas sólidas}
+
+A parte de materiales, los objetos de las escenas pueden tener una textura asociada. Esta textura puede ser un color constante, una función que devuelva un color o una imagen. Para implementar texturas es necesario el punto $p$ donde el rayo interseca la superficie, y las coordenadas $u,v$ ese punto en la superficie. $u$ y $v$ deben estar normalizadas en el intervalo $[0,1]$.
+
+\subsection{Coordenadas de textura para una esfera}
+
+Lo más cómodo es usar coordenadas esféricas. Sea $(\theta,\phi)$ un punto de la esfera unidad en coordenadas esféricas, para conseguir $u,v$ normalizados simplemente basta con:
+\[
+u=\frac{\phi}{2\pi} \;\;\;\;\;\; v=\frac{\theta}{\pi}
+\]
+Para calcular $\phi$ y $\theta$ hay que usar las ecuaciones de las coordenadas esféricas:
+\[
+\begin{array}{rl}
+x = & \cos\phi\cos\theta\\
+y = & \sin\phi\cos\theta\\
+z = & \sin\theta
+\end{array}
+\]
+Para despejar $\phi$, se puede eliminar el término $\cos\theta$, ya que la arcotangente de dos número coincide con la de cualquier par de números múltiplos de ellos, es decir, $atan2(x,y)=atan2(\lambda x, \lambda y)$. Por lo tanto:
+\[
+\phi=atan2(y,x)\in[-\pi,\pi] \;\;\;\;\;\; \theta=asin(z)\in\left[-\frac{\pi}{2},\frac{\pi}{2}\right]
+\]
+Como ahora $\phi$ y $\theta$ están en otros intervalos, la normalización al intervalo $[0,1]$ cambia ligeramente:
+\[
+u=1-\frac{\phi+\pi}{2\pi} \;\;\;\;\;\; v=\frac{\theta}{\pi}
+\]
+Es importante notar, que la parametrización $\frac{\phi+\pi}{2\pi}$ recorre el intervalo $[0,1]$ de derecha a izquierda, luego es necesario invertirlo para ser consistentes. Además, estos cálculos están hechos sobre la esfera unidad centrada en el origen, luego antes de hacer la correspondencia de algún punto de la esfera a la textura, hay que trasladar esos puntos a su equivalente a la esfera unidad centra en el origen.
+
+\subsection{Perlin noise}
+
+\subsubsection{Teoría}
+
+El \textit{ruido Perlin} es un tipo de ruido gradual desarrollado por Ken Perlin en 1983 para crear imágenes más realistas.
+
+\begin{figure}[H]
+\centering
+\begin{minipage}{.5\textwidth}
+  \centering
+  \includegraphics[width=.6\linewidth]{white-noise.jpg}
+  \captionof{figure}{White noise}
+  \label{fig:test1}
+\end{minipage}%
+\begin{minipage}{.5\textwidth}
+  \centering
+  \includegraphics[width=.6\linewidth]{white-noise-blurred.jpg}
+  \captionof{figure}{White noise blurred}
+  \label{fig:test2}
+\end{minipage}
+\end{figure}
+
+Una parte clave de este algoritmo es que puede ser repetido tantas veces como desea. Su único input es un punto 3D y siempre devuelve el mismo número aleatorio. Los puntos cercanos devuelven números próximos. Además, es simple y rápido.
+
+La implementación usada en este trabajo está basada en la explicación de Andrew Kensler (ver \cite{perlinnoiseimplementation}) sobre cómo construir una función de ruido igual a la que describió Perlin.
+
+El algoritmo original de Perlin usaba un interpolador de Hermite cúbico de la forma $s(t)=3t^2-2t^3$. Esta función es comunmente llamada \textit{smoothstep} por su forma de $s$ en el intervalo $[0,1]$. Además, es simétrica respecto del centro del cuadrado $[0,1]\times[0,1]$, lo que permite extenderla al intervalo $[-1,0]$, definiendo así $f(t)=1-s(|t|)=1-(3-2|t|)t^2$.
+
+\inputtikz{hermite}
+
+Esto es fácilmente extendible a dos y tres dimensiones si se aplica esta función a cada una de las variables y luego simplemente tomamos el producto. Por ejemplo, en 2D se tendrían puntos de la forma $(x,y)$, luego el ruido se formaría calculando $f(x)f(y)$. Si al 0 se le asigna el color negro, al 1 el blanco y al resto una escala de grises, se consigue un gradiente casi circular de blanco a negro.
+
+\inputtikz{noise}
+
+El problema ahora es que este ruido va a ser el mismo siempre. Por esa razón es necesario randomizarlo de alguna forma. Para ello, se toma un vector aleatorio partiendo del origen, y se multiplica con el punto $(x,y)$, considerado como vector. Es decir, sea $G$ un vector aleatorio partiendo del origen, el gradiente se calcularía como $f(x)f(y)(G\cdot(x,y))$.
+
+Esta construcción tiene varias propiedades:
+\begin{itemize}
+\item Siempre hay una línea perpendicular al vector $G$ que pasa por el origen, donde el gradiante vale 0. Esto divide el cuadrado $[-1,1]\times[-1,1]$ en dos partes iguales: en una el gradiente es positiva y en otra negativo.
+\item Rotar $G$ implica cambiar la dirección del gradiente.
+\item Cambiar la longitud de $G$, modifica la intensidad del gradiente. Cuanto más largo $G$, más intenso será el gradiente, y al contrario. Por esta razón, se pueden coger simplemente vectores de longitud unidad.
+\end{itemize}
+
+Una vez se ha construido el elemento básico del ruido, simplemente hay que escoger un vector $G$ en cada uno de los puntos de la malla de enteros en el plano, es decir, los puntos $(n,m)$ donde $n,m\in\mathbb{N}$. Una vez escogidos, calcular el ruido sumando las contribuciones de cada vector (en 2D, serán cuatro, mientras que en 3D serán ocho).
+
+\subsubsection{Implementación}
+
+Como se ha visto en el apartado anterior, es necesario dividir $\mathbb{R}^3$ en cubos unitarios. Los vértices de esos cubos serán los puntos cuyas coordenadas sean enteras, es decir, los puntos $(i,j,k)\in\mathbb{R}^3$ donde $i,j,k\in\mathbb{N}$. A cada vértice se le asignará un vector unitario y aleatorio $G$. Para realizar esta elección es necesario crear un array conteniendo 256 vectores unitarios aleatorios (\textit{ranvec}) y tres arrays contenido 256 enteros (desde 0 hasta 255 sin repetir) permutados aleatoriamente  (\textit{perm\_x}, \textit{perm\_y} y \textit{perm\_z}).
+
+\begin{lstlisting}[]
+auto i = static_cast<int>(floor(p.x()));
+auto j = static_cast<int>(floor(p.y()));
+auto k = static_cast<int>(floor(p.z()));
+
+vec3 c[2][2][2];
+
+for (int di=0; di < 2; di++)
+    for (int dj=0; dj < 2; dj++)
+        for (int dk=0; dk < 2; dk++)
+            c[di][dj][dk] = ranvec[
+                perm_x[(i+di) & 255] ^
+                perm_y[(j+dj) & 255] ^
+                perm_z[(k+dk) & 255]
+            ];
+\end{lstlisting}
+
+Hay varias cosas que deben ser comentadas en ese código:
+\begin{itemize}
+\item Tomar las partes enteras de las coordenadas del punto como índices favorece la aleatoriedad de la elección y minimiza los cambios bruscos de ruido en puntos próximos.
+\item El uso de \textit{di}, \textit{dj} y \textit{dk} evita elegir dos veces el mismo vector para un mismo punto.
+\item La operación $\& \;\; 255$ es necesario ya que las partes enteras de los puntos no tienen por qué estar entre 0 y 255.
+\item El \textit{exclusive-or} ayuda a dispersar las elecciones de los vectores.
+\end{itemize}
+
+Básicamente lo que se ha construido con ese código es un hashing de puntos a vectores. Por último, falta calcular el valor de ruido asociado a cada vector y sumar cada contribución. En el apartado anterior no se ha hablado de interpolación trilineal, pero es necesario usarla para suavizar el resultado del ruido. En caso contrario, el resultado seguirá siendo un ruido de Perlin, pero visualmente tendrá una apariencia poligonal nada deseable.
+
+\begin{lstlisting}[basicstyle=\footnotesize]
+double perlin_interp(vec3 c[2][2][2], double u, double v, double w) {
+    // maping to [-1,1]
+    auto u = p.x() - floor(p.x());
+    auto v = p.y() - floor(p.y());
+    auto w = p.z() - floor(p.z());
+    
+    // hermite interpolation
+    auto uu = u*u*(3-2*u);
+    auto vv = v*v*(3-2*v);
+    auto ww = w*w*(3-2*w);
+    
+    // trilinear interpolation + gradient
+    auto accum = 0.0;
+    for (int i=0; i < 2; i++)
+        for (int j=0; j < 2; j++)
+            for (int k=0; k < 2; k++) {
+                vec3 weight_v(u-i, v-j, w-k);
+                accum += (i*uu + (1-i)*(1-uu))*
+                    (j*vv + (1-j)*(1-vv))*
+                    (k*ww + (1-k)*(1-ww))*
+                    dot(c[i][j][k], weight_v);
+            }
+
+    return accum;
+}
+\end{lstlisting}
+
+La implementación de la interpolación trilineal fue propuesta por Paul Bourke en Julio de 1997 (ver \cite{paulbourke}).
+
+\subsubsection{Modificaciones}
+
+Dos modificaciones que pueden ser añadidas para crear, por ejemplo, texturas parecidas a la del mármol, son:
+
+\begin{itemize}
+\item Turbulencias: que no es mas que hacer una media ponderada de varios valores de ruido calculado sobre el mismo punto.
+\item Ajustar frecuencias: hacer el color proporcional a algo que se asemeje a una función seno.
+\end{itemize}
+
+\section{Image Texture Mapping}
+
+Desde el punto de intersección $P$, se calculan las coordenadas $(u,v)$ en la superficie. Después se usan esas coordenadas como índices en una textura sólida procedural (como el mármol creado en el apartado anterior) o como índices en los píxeles de una imagen.
+
+Para lo último, una forma de directa es redondear $(u,v)$ a enteros y usar los píxeles $(i,j)$ correspondientes a la imagen. Esto presenta un problema ya que esa implementación depende de la resolución de la imagen, así que si se cambia la resolución también habría que cambiar esa parte del código. Para evitar este problema, se suele usar \textit{coordenadas de textura}, que son coordenadas en $[0,1]$  adaptables a cualquier resolución. Por ejempo, para el píxel $(i,j)$ de una imagen con resolución $N_x\times N_Y$, las coordenadas de textura serían:
+\[
+u=\frac{i}{N_x-1} \;\;\;\; v=\frac{j}{N_y-1}
+\]
+Algo importante a tener en cuenta, es la posición que representan las coordenadas $(u,v)$ en la imagen. $u$ va de izquierda a derecha, como era de esperar, pero $v$, va de abajo hacia arriba.
+
+\inputtikz{texture-coordinates}
+
+\newpage
+
+\appendix
+
+\section{Aclaraciones}
+
+\subsection{Recorrer los vértices de un cubo}
+
+Una forma muy común de recorrer los vértices de un cubo usada en esta implementación es anidar tres bucles diferentes. En total, se realizan 8 iteraciones, cada una de ellas dando como resultado el índice o la localización de uno de los vértices.
+
+\begin{lstlisting}[basicstyle=\footnotesize]
+void print_vertices()
+{
+    for (int i = 0; i < 2; i++)
+        for (int j = 0; j < 2; j++)
+            for (int k = 0; k < 2; k++)
+                std::cout << i << ' '
+                          << j << ' '
+                          << k << std::endl;
+}
+\end{lstlisting}
+
+Cada iteración devuelve una terna de valores $(x,y,z)$ donde $x,y,z\in\{0,1\}$. Si se considera cada terna como un número binario, $xyz$, se pueden enumerar los vértices de un cubo y ver fácilmente en qué orden son recorridos:
+
+\inputtikz{cubes}
+
+\newpage
+
 \begin{thebibliography}{9}
 \bibitem{first_book}
 \url{https://raytracing.github.io/books/RayTracingInOneWeekend.html}
@@ -536,6 +499,18 @@ Por último, queda ver una forma de comprobar si dos intervalos arbitrarios se s
 \url{https://en.wikipedia.org/wiki/Bounding_volume_hierarchy}
 \bibitem{aabb}
 \url{https://en.wikipedia.org/wiki/Minimum_bounding_box}
+\bibitem{perlinnoise}
+\url{https://en.wikipedia.org/wiki/Perlin_noise}
+\bibitem{perlinnoiseimplementation}
+\url{http://eastfarthing.com/blog/2015-04-21-noise/}
+\bibitem{trilinearinterpolation}
+\url{https://en.wikipedia.org/wiki/Trilinear_interpolation}
+\bibitem{machbands}
+\url{https://en.wikipedia.org/wiki/Mach_bands}
+\bibitem{hermitiansmoothing}
+\url{https://en.wikipedia.org/wiki/Cubic_Hermite_spline}
+\bibitem{paulbourke}
+\url{http://paulbourke.net/miscellaneous/interpolation/}
 \end{thebibliography}
 
 \end{document}

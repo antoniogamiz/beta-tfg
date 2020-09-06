@@ -1,0 +1,14 @@
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=2]
+\draw[line width=1pt,blue](-0.5,-1)--(-0.5,1);
+\draw[line width=1pt,blue](0.5,-1)--(0.5,1);
+\node[black] at (-0.5,-1.1) {$x_0$};
+\node[black] at (0.5,-1.1) {$x_1$};
+\draw[line width=1pt,black,->](-0.8,-0.7)--(0.8,0.5);
+\node[black] at (-0.34,-0.6) {$t_0$};
+\node[black] at (0.4,0) {$t_1$};
+\end{tikzpicture}
+\caption{Intersección de un rayo con un slab}\label{slab_intersection}
+\end{figure}

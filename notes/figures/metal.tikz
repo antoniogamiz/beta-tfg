@@ -1,0 +1,18 @@
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \draw[line width=1pt](-4,0)--(4,0);
+  \draw[line width=1pt,blue,-stealth](0,0)--(2,2) node[anchor=south west]{$r$};
+  \draw[line width=1pt,red,-stealth](-2,2)--(0,0) node[anchor=north east]{$v$};
+  \draw [domain=45:135] plot ({0.5*cos(\x)}, {0.5*sin(\x)});
+  \node[] at (0.25, 0.7) {$\theta$};
+  \node[] at (-0.25, 0.7) {$\theta$};
+  \draw[line width=1pt,red,-stealth](0,0)--(2,-2) node[anchor=north east]{$v$};
+  \draw[line width=1pt,black,dashed,->](0,0)--(0,1.5) node[anchor=south]{$n$};
+  \draw[line width=1pt,dashed,->](2,-2)--(2,0) node[anchor=north west]{$b$};
+  \draw[line width=1pt,dashed,->](2,0)--(2,2) node[anchor=north west]{$b$};
+  \draw[line width=1pt,dashed,|-|](0,0)--(0,-2);
+  \node[] at (-0.8, -1) {$|v|\cos\theta$};
+\end{tikzpicture}
+\caption{Reflexión}
+\end{figure}
