@@ -7,6 +7,7 @@
 #include "sphere.h"
 #include "moving_sphere.h"
 #include "aarect.h"
+#include "box.h"
 
 #include <fstream>
 #include <iostream>
@@ -156,6 +157,9 @@ hittable_list cornell_box()
     objects.add(make_shared<xz_rect>(0, 555, 0, 555, 555, white));
     objects.add(make_shared<xy_rect>(0, 555, 0, 555, 555, white));
 
+    objects.add(make_shared<box>(point3(130, 0, 65), point3(295, 165, 230), white));
+    objects.add(make_shared<box>(point3(265, 0, 295), point3(430, 330, 460), white));
+
     return objects;
 }
 
@@ -192,8 +196,7 @@ int main()
     // Image
 
     auto aspect_ratio = 16.0 / 9.0;
-    int image_width = 800;
-    int image_height = static_cast<int>(image_width / aspect_ratio);
+    int image_width = 600;
     int samples_per_pixel = 25;
     int max_depth = 50;
 
@@ -211,7 +214,6 @@ int main()
     case 1:
         world = random_scene();
         background = color(0.70, 0.80, 1.00);
-
         lookfrom = point3(13, 2, 3);
         lookat = point3(0, 0, 0);
         vfov = 20.0;
@@ -239,7 +241,6 @@ int main()
         lookat = point3(0, 0, 0);
         vfov = 20.0;
         break;
-    default:
     case 5:
         world = simple_light();
         image_width = 1000;
@@ -249,17 +250,20 @@ int main()
         lookat = point3(0, 2, 0);
         vfov = 20.0;
         break;
+    default:
     case 6:
         world = cornell_box();
         aspect_ratio = 1.0;
         image_width = 600;
-        samples_per_pixel = 200;
+        samples_per_pixel = 100;
         background = color(0, 0, 0);
         lookfrom = point3(278, 278, -800);
         lookat = point3(278, 278, 0);
         vfov = 40.0;
         break;
     }
+
+    int image_height = static_cast<int>(image_width / aspect_ratio);
 
     // Camera
     vec3 vup(0, 1, 0);
