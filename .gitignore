@@ -1,3 +1,7 @@
+doresults
+progress
+.vscode/*
+*.ppm
 *.pdf
 .vscode
 *.o
