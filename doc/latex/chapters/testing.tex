@@ -357,29 +357,3 @@ u=\frac{i}{N_x-1} \;\;\;\; v=\frac{j}{N_y-1}
 Algo importante a tener en cuenta, es la posición que representan las coordenadas $(u,v)$ en la imagen. $u$ va de izquierda a derecha, como era de esperar, pero $v$, va de abajo hacia arriba.
 
 \inputtikz{texture-coordinates}
-
-\newpage
-
-\appendix
-
-\section{Aclaraciones}
-
-\subsection{Recorrer los vértices de un cubo}
-
-Una forma muy común de recorrer los vértices de un cubo usada en esta implementación es anidar tres bucles diferentes. En total, se realizan 8 iteraciones, cada una de ellas dando como resultado el índice o la localización de uno de los vértices.
-
-\begin{lstlisting}[basicstyle=\footnotesize]
-void print_vertices()
-{
-    for (int i = 0; i < 2; i++)
-        for (int j = 0; j < 2; j++)
-            for (int k = 0; k < 2; k++)
-                std::cout << i << ' '
-                          << j << ' '
-                          << k << std::endl;
-}
-\end{lstlisting}
-
-Cada iteración devuelve una terna de valores $(x,y,z)$ donde $x,y,z\in\{0,1\}$. Si se considera cada terna como un número binario, $xyz$, se pueden enumerar los vértices de un cubo y ver fácilmente en qué orden son recorridos:
-
-\inputtikz{cubes}
