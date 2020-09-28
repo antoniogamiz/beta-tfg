@@ -5,4 +5,5 @@ all:
 	chmod a+x bin/color.exe
 	mkdir -p progress
 	bin/color.exe > test.ppm
+	pnmtopng test.ppm > result.png
 	rm -rf progress
