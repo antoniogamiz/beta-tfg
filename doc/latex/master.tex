@@ -1,30 +1,21 @@
 \documentclass[a4paper,11pt]{book}
- 
-\usepackage[margin=1in]{geometry} 
-\usepackage{amsmath,amsthm,amssymb}
+%\documentclass[a4paper,twoside,11pt,titlepage]{book}
+\usepackage{listings}
+\usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
 \usepackage{tikz}
 \usepackage{tikz-cd}
 \usetikzlibrary{babel}
-\usepackage[utf8]{inputenc}
-\usepackage{amsmath}
-\usepackage[shortlabels]{enumitem}
-\usepackage{caption}
-\usepackage{subcaption}
-\usepackage{mathtools}
 \usepackage{xcolor}
 \usepackage{float}
-\usepackage{url}
 \usepackage{tikz-3dplot}
 \usetikzlibrary{patterns}
 \usetikzlibrary{calc}
 \usepackage{pgfplots}
 \usetikzlibrary{external}
-
-\newcommand{\inputtikz}[1]{%
-  \tikzsetnextfilename{#1}%
-  \input{figures/#1.tikz}%
-}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage{caption}
+\usepackage{subcaption}
 
 \usepackage{hyperref}
 \hypersetup{
@@ -35,105 +26,201 @@
     urlcolor=black
 }
 
-\usepackage{xcolor}
-\definecolor{commentgreen}{RGB}{2,112,10}
-\definecolor{eminence}{RGB}{108,48,130}
-\definecolor{weborange}{RGB}{255,165,0}
-\definecolor{frenchplum}{RGB}{129,20,83}
+% \usepackage[style=list, number=none]{glossary} %
+%\usepackage{titlesec}
+%\usepackage{pailatino}
 
-\usepackage{listings}
-\lstset {
-    language=C++,
-    frame=tb,
-    tabsize=2,
-    xleftmargin=5.0ex, 
-    showstringspaces=false,
-    numbers=left,
-    %upquote=true,
-    commentstyle=\color{commentgreen},
-    keywordstyle=\color{eminence},
-    stringstyle=\color{red},
-    basicstyle=\small\ttfamily, % basic font setting
-    emph={int,char,double,float,unsigned,void,bool},
-    emphstyle={\color{blue}},
-    %escapechar=\&,
-    % keyword highlighting
-    classoffset=1, % starting new class
-    otherkeywords={>,<,.,;,-,!,=,~},
-    morekeywords={>,<,.,;,-,!,=,~,&},
-    keywordstyle=\color{weborange},
-    classoffset=0,
-}
-
-\newtheorem{theorem}{Teorema}
-\newtheorem{lemma}[theorem]{Lema}
-\newtheorem{prop}[theorem]{Proposición}
-\newtheorem{coro}[theorem]{Corolario}
-\newtheorem{conj}[theorem]{Conjetura}
-\newtheorem{ejercicio}{Ejercicio}
-\newtheorem*{ejercicio*}{Ejercicio}
-\theoremstyle{definition}
-\newtheorem{definition}[theorem]{Definición}
-\newtheorem{example}[theorem]{Ejemplo}
-\theoremstyle{remark}
-\newtheorem{remark}[theorem]{Nota}
-\newtheorem{notacion}[theorem]{Notación}
- 
 \graphicspath{{img/}}
 \decimalpoint
+\usepackage{dcolumn}
+\newcolumntype{.}{D{.}{\esperiod}{-1}}
+\makeatletter
+\addto\shorthandsspanish{\let\esperiod\es@period@code}
+\makeatother
+
+
+%\usepackage[chapter]{algorithm}
+\RequirePackage{verbatim}
+%\RequirePackage[Glenn]{fncychap}
+\usepackage{fancyhdr}
+\usepackage{graphicx}
+\usepackage{afterpage}
+
+\usepackage{longtable}
+ 
+% ********************************************************************
+% Re-usable information
+% ********************************************************************
+\newcommand{\myTitle}{Métodos de Monte-Carlo y desarrollo de software de síntesis de imágenes\xspace}
+\newcommand{\myDegree}{Grado en Ingeniería Informática y Matemáticas\xspace}
+\newcommand{\myName}{Antonio Gámiz Delgado\xspace}
+\newcommand{\myProf}{M. Jesús García-Ligero Ramírez\xspace}
+\newcommand{\myOtherProf}{Carlos Ureña Almagro\xspace}
+\newcommand{\myFaculty}{Escuela Técnica Superior de Ingenierías Informática y de
+Telecomunicación\xspace}
+\newcommand{\myFacultyShort}{E.T.S. de Ingenierías Informática y de
+Telecomunicación\xspace}
+\newcommand{\myUni}{\protect{Universidad de Granada}\xspace}
+\newcommand{\myLocation}{Granada\xspace}
+\newcommand{\myTime}{\today\xspace}
+\newcommand{\myVersion}{Version 0.1\xspace}
+
+
+\hypersetup{
+pdfauthor = {\myName antoniogamiz10@gmail.com},
+pdftitle = {\myTitle},
+pdfsubject = {},
+pdfkeywords = {raytracing, montecarlo, random, numbers},
+pdfcreator = {pdflatex},
+pdfproducer = {pdflatex}
+}
+
+%\hyphenation{}
+
+
+%\usepackage{doxygen/doxygen}
+\usepackage{url}
+\usepackage{colortbl,longtable}
+\usepackage[stable]{footmisc}
+%\usepackage{index}
+
+%\makeindex
+%\usepackage[style=long, cols=2,border=plain,toc=true,number=none]{glossary}
+% \makeglossary
+
+% Definición de comandos que me son tiles:
+%\renewcommand{\indexname}{Índice alfabético}
+%\renewcommand{\glossaryname}{Glosario}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[LO]{\leftmark}
+\fancyhead[RE]{\rightmark}
+\fancyhead[RO,LE]{\textbf{\thepage}}
+\renewcommand{\chaptermark}[1]{\markboth{\textbf{#1}}{}}
+\renewcommand{\sectionmark}[1]{\markright{\textbf{\thesection. #1}}}
+
+\setlength{\headheight}{1.5\headheight}
+
+\newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
+%Definimos los tipos teorema, ejemplo y definición podremos usar estos tipos
+%simplemente poniendo \begin{teorema} \end{teorema} ...
+\newtheorem{teorema}{Teorema}[chapter]
+\newtheorem{ejemplo}{Ejemplo}[chapter]
+\newtheorem{definicion}{Definición}[chapter]
+
+\definecolor{gray97}{gray}{.97}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+\definecolor{gray30}{gray}{.94}
+
+\lstset{ frame=Ltb,
+     framerule=0.5pt,
+     aboveskip=0.5cm,
+     framextopmargin=3pt,
+     framexbottommargin=3pt,
+     framexleftmargin=0.1cm,
+     framesep=0pt,
+     rulesep=.4pt,
+     backgroundcolor=\color{gray97},
+     rulesepcolor=\color{black},
+     %
+     stringstyle=\ttfamily,
+     showstringspaces = false,
+     basicstyle=\scriptsize\ttfamily,
+     commentstyle=\color{gray45},
+     keywordstyle=\bfseries,
+     %
+     numbers=left,
+     numbersep=6pt,
+     numberstyle=\tiny,
+     numberfirstline = false,
+     breaklines=true,
+   }
+ 
+% minimizar fragmentado de listados
+\lstnewenvironment{listing}[1][]
+   {\lstset{#1}\pagebreak[0]}{\pagebreak[0]}
+
+\lstdefinestyle{CodigoC}
+   {
+	basicstyle=\scriptsize,
+	frame=single,
+	language=C,
+	numbers=left
+   }
+\lstdefinestyle{CodigoC++}
+   {
+	basicstyle=\small,
+	frame=single,
+	backgroundcolor=\color{gray30},
+	language=C++,
+	numbers=left
+   }
+
+ 
+\lstdefinestyle{Consola}
+   {basicstyle=\scriptsize\bf\ttfamily,
+    backgroundcolor=\color{gray30},
+    frame=single,
+    numbers=none
+   }
+
+
+\newcommand{\bigrule}{\titlerule[0.5mm]}
+
+
+%Para conseguir que en las páginas en blanco no ponga cabecerass
+\makeatletter
+\def\clearpage{%
+  \ifvmode
+    \ifnum \@dbltopnum =\m@ne
+      \ifdim \pagetotal <\topskip
+        \hbox{}
+      \fi
+    \fi
+  \fi
+  \newpage
+  \thispagestyle{empty}
+  \write\m@ne{}
+  \vbox{}
+  \penalty -\@Mi
+}
+\makeatother
+
+\newcommand{\inputtikz}[1]{%
+  \tikzsetnextfilename{#1}%
+  \input{figures/#1.tikz}%
+}
+
+\usepackage{pdfpages}
 
 \begin{document}
-%\input{portrait/portrait}
-%\input{preface/preface}
 
+\input{portrait/portrait}
+\input{preface/preface}
 %\frontmatter
 %\tableofcontents
 %\listoffigures
 %\listoftables
+%
 %\mainmatter
+%\setlength{\parskip}{5pt}
 
 \input{chapters/testing}
-\input{chapters/appendix}
 
-%\nocite{*}
-%\bibliography{bibliography/bibliography}\addcontentsline{toc}{chapter}{Bibliografía}
-%\bibliographystyle{ieeetr}
 
-%\chapter*{}
-%\thispagestyle{empty}
+\nocite{*}
+\bibliography{bibliography/bibliography}\addcontentsline{toc}{chapter}{Bibliografía}
+\bibliographystyle{abbrv}
+%
+%\appendix
+%\input{apendices/manual_usuario/manual_usuario}
+%\input{apendices/paper/paper}
+%\input{glosario/entradas_glosario}
+%\addcontentsline{toc}{chapter}{Glosario}
+%\printglossary
+\chapter*{}
+\thispagestyle{empty}
+
 \end{document}
-
-\begin{thebibliography}{9}
-\bibitem{first_book}
-\url{https://raytracing.github.io/books/RayTracingInOneWeekend.html}
-\bibitem{antialiasing}
-\url{https://hardzone.es/reportajes/que-es/anti-aliasing-juegos/}
-\bibitem{gamma_correction}
-\url{https://en.wikipedia.org/wiki/Gamma_correction}
-\bibitem{lambertian}
-\url{https://en.wikipedia.org/wiki/Lambertian_reflectance}
-\bibitem{beam}
-\url{https://www.optics4kids.org/what-is-optics/reflection/the-reflection-of-light#:~:text=Polished%20metal%20surfaces%20reflect%20light,the%20metal%20surface%20is%20reflected.&text=The%20law%20of%20reflection%20requires,imaginary%20line%20(dashed%20in%20Fig.}
-\bibitem{tikzmanual}
-\url{https://www.bu.edu/math/files/2013/08/tikzpgfmanual.pdf}
-\bibitem{snellslaw}
-\url{https://en.wikipedia.org/wiki/Snell%27s_law}
-\bibitem{schlickapproximation}
-\url{https://en.wikipedia.org/wiki/Schlick%27s_approximation}
-\bibitem{bvh}
-\url{https://en.wikipedia.org/wiki/Bounding_volume_hierarchy}
-\bibitem{aabb}
-\url{https://en.wikipedia.org/wiki/Minimum_bounding_box}
-\bibitem{perlinnoise}
-\url{https://en.wikipedia.org/wiki/Perlin_noise}
-\bibitem{perlinnoiseimplementation}
-\url{http://eastfarthing.com/blog/2015-04-21-noise/}
-\bibitem{trilinearinterpolation}
-\url{https://en.wikipedia.org/wiki/Trilinear_interpolation}
-\bibitem{machbands}
-\url{https://en.wikipedia.org/wiki/Mach_bands}
-\bibitem{hermitiansmoothing}
-\url{https://en.wikipedia.org/wiki/Cubic_Hermite_spline}
-\bibitem{paulbourke}
-\url{http://paulbourke.net/miscellaneous/interpolation/}
-\end{thebibliography}
