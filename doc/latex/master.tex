@@ -1,14 +1,17 @@
+% !TeX spellcheck = sp
 \documentclass[a4paper,11pt]{book}
 %\documentclass[a4paper,twoside,11pt,titlepage]{book}
-\usepackage{listings}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
 \usepackage{tikz}
 \usepackage{tikz-cd}
 \usetikzlibrary{babel}
-\usepackage{xcolor}
+%\usepackage[round]{natbib}
+\usepackage[backend=bibtex,citestyle=alphabetic]{biblatex}
+\addbibresource{bibliography/bibliography.bib}
 \usepackage{float}
 \usepackage{tikz-3dplot}
+\usepackage[toc,page]{appendix}
 \usetikzlibrary{patterns}
 \usetikzlibrary{calc}
 \usepackage{pgfplots}
@@ -18,6 +21,8 @@
 \usepackage{subcaption}
 
 \usepackage{hyperref}
+\usepackage{xcolor}
+
 \hypersetup{
     colorlinks,
     citecolor=black,
@@ -25,6 +30,10 @@
     linkcolor=black,
     urlcolor=black
 }
+
+\usepackage{minted}
+\definecolor{monokaibg}{HTML}{272822}
+\definecolor{friendlybg}{HTML}{f0f0f0}
 
 % \usepackage[style=list, number=none]{glossary} %
 %\usepackage{titlesec}
@@ -65,7 +74,6 @@ Telecomunicación\xspace}
 \newcommand{\myTime}{\today\xspace}
 \newcommand{\myVersion}{Version 0.1\xspace}
 
-
 \hypersetup{
 pdfauthor = {\myName antoniogamiz10@gmail.com},
 pdftitle = {\myTitle},
@@ -105,67 +113,19 @@ pdfproducer = {pdflatex}
 \newcommand{\HRule}{\rule{\linewidth}{0.5mm}}
 %Definimos los tipos teorema, ejemplo y definición podremos usar estos tipos
 %simplemente poniendo \begin{teorema} \end{teorema} ...
-\newtheorem{teorema}{Teorema}[chapter]
-\newtheorem{ejemplo}{Ejemplo}[chapter]
-\newtheorem{definicion}{Definición}[chapter]
+\newtheorem{theorem}{Teorema}[chapter]
+\newtheorem{example}{Ejemplo}[chapter]
+\newtheorem{definition}[chapter]{Definición}
 
-\definecolor{gray97}{gray}{.97}
-\definecolor{gray75}{gray}{.75}
-\definecolor{gray45}{gray}{.45}
-\definecolor{gray30}{gray}{.94}
-
-\lstset{ frame=Ltb,
-     framerule=0.5pt,
-     aboveskip=0.5cm,
-     framextopmargin=3pt,
-     framexbottommargin=3pt,
-     framexleftmargin=0.1cm,
-     framesep=0pt,
-     rulesep=.4pt,
-     backgroundcolor=\color{gray97},
-     rulesepcolor=\color{black},
-     %
-     stringstyle=\ttfamily,
-     showstringspaces = false,
-     basicstyle=\scriptsize\ttfamily,
-     commentstyle=\color{gray45},
-     keywordstyle=\bfseries,
-     %
-     numbers=left,
-     numbersep=6pt,
-     numberstyle=\tiny,
-     numberfirstline = false,
-     breaklines=true,
-   }
- 
-% minimizar fragmentado de listados
-\lstnewenvironment{listing}[1][]
-   {\lstset{#1}\pagebreak[0]}{\pagebreak[0]}
-
-\lstdefinestyle{CodigoC}
-   {
-	basicstyle=\scriptsize,
-	frame=single,
-	language=C,
-	numbers=left
-   }
-\lstdefinestyle{CodigoC++}
-   {
-	basicstyle=\small,
-	frame=single,
-	backgroundcolor=\color{gray30},
-	language=C++,
-	numbers=left
-   }
-
- 
-\lstdefinestyle{Consola}
-   {basicstyle=\scriptsize\bf\ttfamily,
-    backgroundcolor=\color{gray30},
-    frame=single,
-    numbers=none
-   }
-
+%\newtheorem{coro}[theorem]{Corolario}
+%\newtheorem{conj}[theorem]{Conjetura}
+%\newtheorem{ejercicio}[theorem]{Ejercicio}
+%\theoremstyle{definition}
+%\newtheorem{definition}[theorem]{Definición}
+%\newtheorem{example}[theorem]{Ejemplo}
+%\theoremstyle{remark}
+%\newtheorem{remark}[theorem]{Nota}
+%\newtheorem{notacion}[theorem]{Notación}
 
 \newcommand{\bigrule}{\titlerule[0.5mm]}
 
@@ -197,8 +157,8 @@ pdfproducer = {pdflatex}
 
 \begin{document}
 
-\input{portrait/portrait}
-\input{preface/preface}
+%\input{portrait/portrait}
+%\input{preface/preface}
 %\frontmatter
 %\tableofcontents
 %\listoffigures
@@ -207,20 +167,22 @@ pdfproducer = {pdflatex}
 %\mainmatter
 %\setlength{\parskip}{5pt}
 
-\input{chapters/testing}
+\input{chapters/numeros_aleatorios}
 
 
 \nocite{*}
-\bibliography{bibliography/bibliography}\addcontentsline{toc}{chapter}{Bibliografía}
-\bibliographystyle{abbrv}
+\printbibliography
+%\bibliography{bibliography/bibliography}\addcontentsline{toc}{chapter}{Bibliografía}
+%\bibliographystyle{plainnat}
 %
-%\appendix
-%\input{apendices/manual_usuario/manual_usuario}
+\begin{appendices}
+\input{appendix/code}
+\end{appendices}
 %\input{apendices/paper/paper}
 %\input{glosario/entradas_glosario}
 %\addcontentsline{toc}{chapter}{Glosario}
 %\printglossary
-\chapter*{}
-\thispagestyle{empty}
+%\chapter*{}
+%\thispagestyle{empty}
 
 \end{document}

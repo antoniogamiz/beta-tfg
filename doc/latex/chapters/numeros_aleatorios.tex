@@ -1,0 +1,39 @@
+\chapter{Números aleatorios}
+
+Este capítulo pretender cubrir los conceptos básicos sobre números aleatorios y varios métodos sobre cómo generarlos.  Además, también se verán varios procedimientos para verificar y comparar el nivel de \textit{aleatoriedad} de cada método usado.
+
+\section{Noción de secuencia aleatoria}
+
+Un número aleatorio es un número generado por un proceso, cuyo resultado es impredecible y que no se puede reproducir posteriormente de forma fiable. Esta definición va bien siempre que se tenga algún tipo de caja \textit{mágica} (generador de números aleatorios) que cumpla esas condiciones.
+
+Sin embargo, si se tuviera un simple número aleatorio, sería imposible verificar su aleatoriedad, es decir, si fue producido por un generador de números aleatorios o no. Por esta razón, es fundamental que se consideren \textit{secuencias de números aleatorios}.
+
+Dada una secuencia finita de números, tampoco es posible verificar si es aleatoria o no. Lo único que se puede hacer es comprobar si tiene propiedades estadísticas comunes con una secuencia aleatoria - como que los números de la secuencia sean equiprobables - pero esto es difícil de comprobar. Por ejemplo, si se considera un generador de números aleatorios del 0 al 9, la secuencia 4 4 4 4 4, parece ser menos aleatoria que 3 9 4 8 6. Para solventar estas dificultades, hay que elegir una definición común de secuencia de números aleatoria, como la propuesta en \cite{SalmeronMorales}:
+
+\begin{definition}
+Una secuencia de números aleatorios es una sucesión de variables aleatorias independientes $\{X_1,\ldots X_n\}$ donde $X_i\leadsto\mathcal{U}[0,1)$ para todo $i=1,\ldots,n$.
+\end{definition}
+
+\section{Métodos de generación}
+
+\subsection{Métodos manuales}
+
+Cuando los matemáticos empezaron a necesitar números aleatorios para sus investigaciones, no existían todavía ordenadores para producirlos, luego era necesario recurrir a métodos mas artesanales como el lanzamiento de monedas o dados. Evidentemente, la utilidad de estos métodos para fines estadísticos era escasa.
+
+Estos procedimientos, al ser tan engorrosos, promovieron la creación de tablas de números aleatorios, como la publicada por L.H.C. Tippett, con 40000 entradas diferentes, obtenida a partir de registros del censo (ver \cite{Tippett}).
+
+\subsection{Métodos digitales}
+
+Los métodos digitales son algoritmos numéricos que, a partir de una \textit{semilla}, generan secuencias de números de la forma $X_{n+1}=f(X_n)$. La dependencia funcional de $f$ hace evidente que esta secuencia no es realmente aleatoria.
+
+\begin{definition}
+Los números de una secuencia creada a través de un proceso determinista (una rutina, un programa, etc.) reciben el nombre de números pseudoaleatorios.
+\end{definition}
+
+El primero de estos métodos es el conocido \textit{Método del centro de los cuadrados} (\textit{middle-square method}), propuesto por John Von Neumann en 1946 (ver \cite{von195113}). El método es bastante simple: consiste en tomar un número $n\in\mathbb{N}$, elevarlo al cuadrado, tomar los valores del centro y repetir el proceso (implementación en \ref{square-center-method}). 
+
+El problema de este método (implementación en \ref{square-center-method}) es su rápida convergencia a cero. No obstante, esto puede ser corregido en cierto modo usando una 
+
+
+%\begin{minted}{python}
+%\end{minted}
