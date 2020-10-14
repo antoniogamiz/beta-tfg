@@ -26,6 +26,8 @@ This project contains a lot of Tikz figures so they are cached the first time th
 To compile the bibliography you need to setup TexMaker: see [this answer](https://tex.stackexchange.com/a/193610/161499) and change the Bixtex command to
 `bibtex build/%`. Remember enabling `Use a "build" subdirectory for output files.`
 
+To setup minted, I followed [this article](https://blog.wotw.pro/syntax-highlighting-in-latex-with-minted/).
+
 ### References
 
 - Some latex code have been based on [this source](https://github.com/VictorMorenoJimenez/tfg2020/tree/master/doc/latex).
