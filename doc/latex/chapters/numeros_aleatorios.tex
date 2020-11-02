@@ -116,10 +116,10 @@ donde el coeficiente j-ésimo es igual a
 \]
 Al contrario que antes, ahora tenemos que ver que ese número no es divisible por $p^\alpha$. Evindetemente, el primer término, $p^{\alpha-1}$ no es divisible por $p^\alpha$, por consiguiente, con demostrar que los otros términos sí dividen a $p^\alpha$, es suficiente. El argumento es análogo al anterior, pero esta vez nos falta otro término $p$. Ese término se obtiene en $p^{(j-1)\beta}$, ya que como $p$ es impar, \eqref{eq:gcl6} es menor o igual que $j-2$.
 
-Con esto queda concluida la prueba para $m=p^\alpha$ si $p$ es un primo impar.
-
-% TODO: TERMINAR CASE P=2.
-
+Con esto queda concluida la prueba para $m=p^\alpha$ si $p$ es un primo impar. Para $p=2$, simplemente  hay que considerar la fórmula alternativa de Legendre:
+\[
+v_p(n!)=\frac{n-s_p(n)}{p-1} \Rightarrow v_2(j!)=j-s_2(j)\leq j-1
+\]
 Ahora faltaría el caso en el que $m$ es producto de potencias de primos, es decir, cualquier número natural, pero tomando 
 \[
 m=p_1^{\alpha_1}\cdots p_s^{\alpha_s}, \;\;\; a=1+kp_1^{\alpha_1}\cdots p_s^{\alpha_s}
@@ -181,15 +181,11 @@ Por estas razones, el PRNG usado en Linux es mucho más complejo de lo aquí exp
 
 \section{Calidad de los PRNG}
 
-% https://en.wikipedia.org/wiki/Diehard_tests
-
 En la sección anterior hemos visto algunos ejemplos de PRNG. En cada ejemplo se ha hecho un razonamiento sobre cuánto vale el  periodo, es decir, de cuántos números \textit{distintos} pueden ser generados. El problema es que \textit{distinto} no es lo mismo que \textit{aleatorio}. Por ejemplo, supón dos PRNG de periodo 5 y dos secuencias generadas por cada uno de ellos: $\{3,2,4,1,5\}$ y $\{1,2,3,4,5\}$. La primera secuencia parece más aleatoria que la segunda. Por esa razón, es necesario definir una serie de herramientas que nos permitan medir la calidad de los números aleatorios generados, para posteriormente poder comparar generadores.
-
-George Marsaglia, publicó en 1996 (\cite{marsaglia1996}) un conjunto de 16 test de aleatoriedad diferentes llamados \textit{Diehard}. Cada uno de estos test mide una propiedad que deberían cumplir números aleatorios reales. Algunos hacen operaciones con bits, otros cuentan las permutaciones de longitud 5,  el rango de ciertas matrices, etc. 11 de ellos usan el test $\chi^2$ para constrastar la hipótesis, por esa razón vamos a recordar previamente en qué consiste este test.
 
 \subsection{Test $\chi^2$}
 
-El test \textit{chi-cuadrado}, denotado por $\chi^2$, es un test de contraste de hipótesis que puede ser usado para contrastar a partir dee una muestra aleatoria simple de una variable $X$, si $X$ sigue una distribución determinada. En este caso, como queremos comprobar si los números generados son efectivamente aleatorios, lo que debemos comprobar es si los datos siguen una distribución uniforme en el intervalo $[0,1]$. Por lo tanto, las hipótesis del test serán:
+El test \textit{chi-cuadrado}, denotado por $\chi^2$, es un test de contraste de hipótesis que puede ser usado para contrastar a partir de una muestra aleatoria simple de una variable $X$, si $X$ sigue una distribución determinada. En este caso, como queremos comprobar si los números generados son efectivamente aleatorios, lo que debemos comprobar es si los datos siguen una distribución uniforme en el intervalo $[0,1]$. Por lo tanto, las hipótesis del test serán:
 \begin{itemize}
 \item $H_0$: los datos proceden de una distribución $\mathcal{U}[0,1]$.
 \item $H_1$: los datos no proceden de una distribución $\mathcal{U}[0,1]$.
@@ -239,3 +235,42 @@ Luego tenemos que rechazar la hipótesis nula, ya que el valor del estadístico 
 Los resultados obtenidos tienen sentido ya que la mitad de las clases están vacías cuando deberían estar uniformemente distribuidas.
 
 \end{example}
+
+Una vez conocemos el principal test de contraste usado, podemos describir brevemente algunos de los métodos usados en \textit{Diehard}.
+
+\subsection{Test de rachas}
+
+Esta prueba se realiza considerando a los números generados como dígitos. La prueba consiste en contar el número de dígitos que aparece entre ocurrencias sucesivas de un mismo dígito. Por ejemplo, el número 834938 presenta un hueco de longitud cuatro entre los dos ochos.
+
+La probabilidad de que aparezca cada uno de los tamaños de longitud $i$ se obtiene con la siguiente expresión:
+\[
+p_i=0.1(0.9)^n \,\, \text{para } i=0,1,2,\ldots
+\]
+Sin embargo, como teóricamente el valor del tamaño del hueco puede ser infinito, es conveniente agrupar las probabilidades para valores de $i$ mayores o iguales a un determinado natural $k$, fijado arbitrariamente por el realizador del test.
+
+Contabilizamos las fecuencias observadas $N_i$, con $i=0, \ldots, k$ y las frecuencias esperadas $E_i=np_i$, con $i=0, \ldots, k$. Una vez obtenidas ambas frecuencias, podemos calcular el valor del estadístico $\chi^2$:
+
+\[
+\chi^2=\frac{d}{n}\sum_{i=1}^dE_i^2-n=\longrightarrow \chi^2(k)
+\]
+Y construir un contraste para las hipótesis
+\begin{itemize}
+\item $H_0$: los datos proceden de una distribución $\mathcal{U}[0,1]$ y son independientes.
+\item $H_1$: los datos no proceden de una distribución $\mathcal{U}[0,1]$ y no son independientes.
+\end{itemize}
+
+\subsection{Diehard Tests}
+
+George Marsaglia, publicó en 1996 (\cite{marsaglia1996}) un conjunto de 16 test de aleatoriedad diferentes llamados \textit{Diehard}. Cada uno de estos test mide una propiedad que deberían cumplir números aleatorios reales. Algunos hacen operaciones con bits, otros cuentan las permutaciones de longitud 5,  el rango de ciertas matrices, etc. 11 de ellos usan el test $\chi^2$ para constrastar la hipótesis. A continuación se describen algunos de los métodos:
+
+\subsubsection{Contar los 1}
+
+Primero se elige un número de bytes determinado, se cuentan los bits con valor 1 en cada uno de los bytes elegidos y se le asocia a cada posible valor del recuento una letra. Finalmente, se cuentan todas las apariciones de palabras de cinco letras.
+
+\subsubsection{Esferas aleatorias}
+
+Se escogen 4000 puntos aleatorios dentro de un cubo de lado 1000 y se centra una esfera en cada punto con radio la distancia al punto más cercano. El volumen de la esfera más pequeña debería seguir una ditribución exponencial con una media determinada.
+
+\subsubsection{Mínima distancia}
+
+Se escogen de forma aleatoria 8000 puntos en un cuadrado de lado 10000 y se calcula la distancia mínima entre las parejas. El cuadrado de esa distancia debería estar distribuida exponencialmente con una cierta media.
