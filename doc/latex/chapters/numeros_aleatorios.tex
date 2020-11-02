@@ -30,10 +30,172 @@ Los métodos digitales son algoritmos numéricos que, a partir de una \textit{se
 Los números de una secuencia creada a través de un proceso determinista (una rutina, un programa, etc.) reciben el nombre de números pseudoaleatorios.
 \end{definition}
 
-El primero de estos métodos es el conocido \textit{Método del centro de los cuadrados} (\textit{middle-square method}), propuesto por John Von Neumann en 1946 (ver \cite{von195113}). El método es bastante simple: consiste en tomar un número $n\in\mathbb{N}$, elevarlo al cuadrado, tomar los valores del centro y repetir el proceso (implementación en \ref{square-center-method}). 
+Los métodos de generación de números aleatorios suelen repetir la misma secuencia de números. A la longitud de esa secuencia se le denomina \textit{periodo}.
 
-El problema de este método (implementación en \ref{square-center-method}) es su rápida convergencia a cero. No obstante, esto puede ser corregido en cierto modo usando una 
+\subsubsection{Middle Square method}
 
+El primero de estos métodos es el conocido \textit{Método del centro de los cuadrados} (\textit{middle-square method}), propuesto por John Von Neumann en 1946 (ver \cite{von195113}). El método es bastante simple: consiste en tomar un número $n\in\mathbb{N}$, elevarlo al cuadrado, tomar los $\frac{n}{2}$ valores del centro y repetir el proceso (implementación en listado \ref{square-center-method}).  El problema de este método es su rápida convergencia a cero, es decir, secuencias de números aleatorios bastante cortas, y la existencia de valores que crean siempre el mismo bucle. Por ejemplo, si tomamos números de 4 cifras con $n=10$, obtendremos $n^2=0100$, luego obtendríamos otra vez $10$ como resultado.
 
-%\begin{minted}{python}
-%\end{minted}
+\subsubsection{Generadores congruenciales}
+
+El siguiente tipo de generadores se basan en calcular congruencias módulo un número natural $m$ de el resultado de evaluar una función $f$:
+
+\begin{equation}\label{gc}
+X_{n+1}=f(X_0,\ldots, X_n)\;mod\;m
+\end{equation}
+
+Dentro de este tipo de métodos, vamos a centrarnos en el más básico, en el cual $f$ es una función lineal, es decir:
+\begin{equation}\label{gcl}
+X_{n+1}=(aX_n+c)\;mod\;m	
+\end{equation}
+donde 
+\begin{itemize}
+\item $a$ es el multiplicador ($0\geq a<m$)
+\item $m$ el módulo ($m>0$)
+\item $c$, el incremento ($0\geq c < m$)
+\item $X_0$, la semilla ($0 < m$)
+\end{itemize}
+
+A este método se le conoce como Generador Congruencial Lineal (G.C.L) y fue propuesto por D.H. Lehmer en 1949. Es fácil ver a partir de \eqref{gcl}, que la elección de los parámetros ($a$,$m$, $c$ ,$X_0$), juega un papel fundamental en la calidad del generador. Por ejemplo, si se toma  $a=1$ y $c$ tal que $mcd(c,m)=1$, se tiene entonces un generador de periodo $m$. Además, al estar haciendo congruencias, es fácil deducir que el periodo siempre será igual o menor que $m$, luego cuanto más grande sea $m$, más largo podrá ser el periodo. El siguiente teorema nos da condiciones suficientes para obtener un GCL de longitud máxima $m$.
+
+\begin{theorem}
+La secuencia definida por la equación \eqref{gcl}, tiene periodo máximo si se cumple:
+\begin{enumerate}[(i)]
+\item $c$ es primo relativo con $m$.
+\item $\congruencia{a}{1}{p}$ si $p$ es un factor primo de $m$.
+\item $\congruencia{a}{1}{4}$ si $4$ es un factor de $m$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+El caso $a=1$ es fácil, ya que si $mcd(c,m)=1$, el periodo es $m$. Por lo tanto, solo tenemos que demostrar el caso $a\neq 1$. Partiendo de \eqref{gcl}, se puede sustituir recursivamente la expresión de $X_n$, obteniendo:
+\[
+\congruencia{x_n}{a^nx_0+\frac{(a^n-1)c}{a-1}}{m}
+\]
+queremos encontrar la longitud de ese generador, es decir, el número $n\in\mathbb{N}$ tal que $X_n=X_0$, ya que eso implica que se va a producir exactamente la misma secuencia después de $X_n$. Operando en la ecuación anterior:
+\[
+\congruencia{\frac{(a^n-1)(x_0(a-1)+c)}{a-1}}{0}{m}
+\]
+Por las condiciones $(i)$ y $(ii)$ se tiene que $x_0(a-1)+c$ es primo relativo con $m$. Luego podemos obviar esa parte de la ecuación y resolver, en su lugar:
+\begin{equation}\label{eq:gcl2}
+\congruencia{\frac{a^n-1}{a-1}}{0}{m}
+\end{equation}
+Lo que queremos es ver que si $a$ satisface la condiciones del teorema, entonces $n$ es igual a $m$. Vamos a demostrar primero el resultado si $m$ es una potencia de un primo mayor que 2, es decir, $m=p^\alpha$, donde $\alpha\in\mathbb{N}$ y $\alpha\geq 2$ (si $\alpha=1$ es el caso del principio).
+
+Como $a$ satisface la condición $(ii)$, $a$ se expreserá como:
+\begin{equation}\label{eq:gcl3}
+a=1+kp^\beta
+\end{equation}
+donde $mcd(k,p)=1$ y $k\neq 0$ porque $a\neq 1$, y $\beta\in\mathbb{N}$. Para comprobar que $n=p^\alpha=m$ satisface \eqref{eq:gcl2}, sustituimos el valor de $n$ y $a$, obteniendo:
+\begin{multline}\label{eq:gcl4}
+%\begin{split}
+\frac{a^n-1}{a-1}=\frac{(1+kp^\beta)^{p^\alpha}-1}{kp^\beta}=\frac{1+\sum_{j=1}^{p^\alpha}\binom{p^\alpha}{j}(kp^\beta)^j-1}{kp^\beta}= \\
+= \frac{p^\alpha kp^\beta+\frac{p^\alpha(p^\alpha-1)}{2!}(kp^\beta)^2+\cdots+(kp^\beta)^{p\alpha}}{kp^\beta} = \\
+=p^\alpha+\frac{p^\alpha(p^\alpha-1)}{2!}kp^\beta+\cdots+(kp^\beta)^{p^\alpha-1}
+%\end{split}
+\end{multline}
+Ahora solo tenemos que ver que esa expresión es divisible por $p^\alpha$, o lo que es lo mismo, que cada término es divisble por $p^\alpha$.  Para ello, podemos reescribir el término j-ésimo como sigue:
+\[
+\frac{p^\alpha}{j} \binom{p^\alpha}{j-1} k^{j-1}p^{(j-1)\beta}, \;\;\; (j>1)
+\]
+Se tiene que $\binom{p^\alpha}{j-1}$ y $k^{j-1}p^{(j-1)\beta}$ son enteros, luego ninguno de ellos \textit{necesitará} parte de $p^\alpha$. Por tanto, el único elemento que puede \textit{tomar} algo de $p^\alpha$ es $j$. Sin embargo, como $j$ toma valores en $\{2, \ldots, p^\alpha\}$, el número de veces que el factor $p$ puede aparecer en $j$ es menor que (usando la fórmula de Legendre):
+\begin{equation}\label{eq:gcl6}
+v_p(j!)=\sum_{i=1}^\infty\floorfrac{n}{p^i}\leq\frac{j}{p}+\frac{j}{p^2}+\frac{j}{p^3}+\cdots=\frac{j}{p-1}
+\end{equation}
+y por lo tanto, es menor o igual que $j-1$. Pero el factor $p$ aparece al menos $j-1$ veces in $p^{(j-1)\beta}$, ya que $\beta\geq 1$. Por consiguiente, el factor $p^\alpha$ no es necesario para que $j$ sea dividido por un elemento del numerador. Como todo elemento de \eqref{eq:gcl4} es divisible por $p^\alpha$, la ecuación \eqref{eq:gcl2} se cumple para $n=p^\alpha$.
+
+Todavía queda demostrar que, efectivamente, $n=p^\alpha$ es el menor valor que satisface \eqref{eq:gcl2}. Tenemos que ver que ningún valor menor a $p^\alpha$ satisface \eqref{eq:gcl2}. Como \eqref{eq:gcl2} es equivalente a $\congruencia{a^n}{1}{m}$, tenemos que $a$ pertenece al exponente de $n\,(mod\, m)$.  Por tanto, se puede usar el teorema descrito en \cite{ore1988number}, que nos dice que si hay otro número $N$ que cumple \eqref{eq:gcl2}, entonces $n$ divide a $N$. Como $n=p^\alpha$, viendo que no se cumple para $p^{\alpha-1}$ es suficiente para asegurar que $n$ es el mínimo.
+
+Repitiendo los mismos pasos que en \eqref{eq:gcl4}, pero con $n=p^{\alpha-1}$, obteniendo la siguiente expresión para el término j-ésimo:
+\begin{equation}\label{eq:gcl5}
+\frac{a^n-1}{a-1}=p^{\alpha-1}+\frac{p^{\alpha-1}(p^{\alpha-1}-1)}{2!}kp^\beta+\cdots+(kp^\beta)^{p^{\alpha-1}-1}
+\end{equation}
+donde el coeficiente j-ésimo es igual a
+\[
+\frac{p^{\alpha-1}}{j} \binom{p^{\alpha-1}}{j-1} k^{j-1}p^{(j-1)\beta}, \;\;\; (j>1)
+\]
+Al contrario que antes, ahora tenemos que ver que ese número no es divisible por $p^\alpha$. Evindetemente, el primer término, $p^{\alpha-1}$ no es divisible por $p^\alpha$, por consiguiente, con demostrar que los otros términos sí dividen a $p^\alpha$, es suficiente. El argumento es análogo al anterior, pero esta vez nos falta otro término $p$. Ese término se obtiene en $p^{(j-1)\beta}$, ya que como $p$ es impar, \eqref{eq:gcl6} es menor o igual que $j-2$.
+
+Con esto queda concluida la prueba para $m=p^\alpha$ si $p$ es un primo impar.
+
+% TODO: TERMINAR CASE P=2.
+
+Ahora faltaría el caso en el que $m$ es producto de potencias de primos, es decir, cualquier número natural, pero tomando 
+\[
+m=p_1^{\alpha_1}\cdots p_s^{\alpha_s}, \;\;\; a=1+kp_1^{\alpha_1}\cdots p_s^{\alpha_s}
+\]
+donde $\{p_1,\ldots, p_s\}$ son primos, $\{\alpha_1,\ldots,\alpha_s\}$ son enteros positivos y $k\neq 0$ con $mcd(k,m)=1$, la demostración es prácticamente igual al caso que hemos desarrollado.
+\end{proof}
+
+Este teorema tiene gran importancia ya que nos asegura que si escogemos los parámetros $a$ y $c$ cumpliendo ciertas condiciones, podemos obtener un generador congruencial lineal de longitud casi arbitraria $m$. Esa característica combinada con lo simple que es de calcular $X_{n+1}$, hace a este tipo de G.C.L una buena elección de generador de números pseudoaleaorios. En \cite{wiki:000}, puede verse una lista de los valores $(a,c,m)$ escogidos por diferentes implementaciones de este proceso. Es importante notar, que aunque el teorema es válido para cualquier producto de primos, casi siempre se toma $m$ como una potencia de 2, normalmente $2^{32}$ o $2^{64}$. Esto es debido a razones de eficiencia por la forma en la que se almacenan los datos en la memoria de un ordenador.
+
+Por último, vamos a ver un tipo de generador de números pseudoaleatorios que usa registros hardware y operaciones lógicas a nivel de bit.
+
+% TODO: donde pone por las condiciones i y ii, justificarlo porque no se por qué pasa eso
+% https://chagall.med.cornell.edu/BioinfoCourse/PDFs/Lecture4/random_number_generator.pdf
+% https://archive.org/details/NumberTheoryItsHistory/page/n291/mode/2up
+
+\subsubsection{Linear-Feedback Shift Register Generators}
+
+% TODO: referenciar Gentle
+
+Un registro de retroalimentación lineal con desplazamiento, o LFSR, es un registro de desplazamiento (un registro circular) cuyto bit de entrada es el resultado de evaluar una función lineal usando su estado previo. Este tipo de generadores fue propuesto por Tausworthe en 1965. El bit resultante se puede expresar mediante la siguiente recurrencia:
+\begin{equation}
+\congruencia{b_i}{(a_{p}b_{i-p}+a_{p-1}b_{i-p+1}+\ldots+a_{1}b_{i-1})}{2}
+\end{equation}
+donde $b_i\in\{0,1\}$ para todo $i$. Como el módulo del generador, $m=2$, es un número primo, podemos expresar la parte derecha de la congruencia como el siguiente polinomio:
+\[
+f(z)=z^p-(a_{1}z^{p-1}+\ldots+a_{p-1}z+a)
+\]
+sobre el cuerpo finito de Galois $\mathcal{G}(2)$ definido sobre los enteros $\{0,1\}$ con las operaciones suma y producto usuales, seguidas de una reducción módulo 2. Como consecuencia de la teoría de Galois, se tiene que mientras haya al menos un $b_i\neq 0$, el periodo de la recurrencia será $2^{p-1}$ si y solo si $f$ es irreducible en $\mathcal{G}(2)$.
+
+Si el módulo es igual a 2, solo hay un binomio irreducible, $x+1$. Sin embargo, hay una gran variedad de trinomios módulo 2 (ver \cite{zierler1969primitive}). Tales trinomios suelen ser denotados por $R(p,r)=x^p+x^r+1$. Si tomamos esos polinomios como $f$, obtenemos la siguiente recurrencia:
+\[
+\congruencia{b_i}{(b_{i-p}+b_{i-p+q})}{2}
+\]
+donde $q=p-r$. La suma en binario se realiza mediante la operación lógica or-exclusivo (\textit{xor}), denotada por $\oplus$, quedando:
+\[
+b_i=b_{i-p}\oplus b_{i-p+q}
+\]Una vez hayamos evaluado esta recurrencia cierto número de veces, $l$ con $l\leq p$, podemos interpretar la secuencia de bits como tuplas de longitud $l$ contiguas (si falta espacio, se empieza por el principio, ya que es un registro con desplazamiento). Es evidente ver que si $l$ es primo relativo con $2^p-1$, entonces el periodo de las $l$-tuplas también será $2^p-1$.
+
+% http://users.ece.cmu.edu/~koopman/lfsr/index.html
+
+\subsubsection{PRNG de Linux}
+
+Los generadores descritos en los apartados anteriores son fáciles de implementar y usar. Sin embargo, también es relativamente fácil adivinar qué procedimiento se está siguiendo para generar tales números. Eso es una gran desventaja para la seguridad de muchos protocolos, como sistemas criptográficos, que están basados en la imposibilidad de que un atacante adivine datos generados aleatoriamente (como claves de sesión).
+
+Por estas razones, el PRNG usado en Linux es mucho más complejo de lo aquí explicado y se escapa del propósito de este trabajo. En este artículo (\cite{lacharme2012}), se puede encontrar una explicación profunda y detallada de cómo funciona exactamente la última versión de este generador.
+
+\section{Calidad de los PRNG}
+
+% https://en.wikipedia.org/wiki/Diehard_tests
+
+En la sección anterior hemos visto algunos ejemplos de PRNG. En cada ejemplo se ha hecho un razonamiento sobre cuánto vale el  periodo, es decir, de cuántos números \textit{distintos} pueden ser generados. El problema es que \textit{distinto} no es lo mismo que \textit{aleatorio}. Por ejemplo, supón dos PRNG de periodo 5 y dos secuencias generadas por cada uno de ellos: $\{3,2,4,1,5\}$ y $\{1,2,3,4,5\}$. La primera secuencia parece más aleatoria que la segunda. Por esa razón, es necesario definir una serie de herramientas que nos permitan medir la calidad de los números aleatorios generados, para posteriormente poder comparar generadores.
+
+George Marsaglia, publicó en 1996 (\cite{marsaglia1996}) un conjunto de 16 test de aleatoriedad diferentes llamados \textit{Diehard}. Cada uno de estos test mide una propiedad que deberían cumplir números aleatorios reales. Algunos hacen operaciones con bits, otros cuentan las permutaciones de longitud 5,  el rango de ciertas matrices, etc. 11 de ellos usan el test $\chi^2$ para constrastar la hipótesis, por esa razón vamos a recordar previamente en qué consiste este test.
+
+\subsection{Test $\chi^2$}
+
+El test \textit{chi-cuadrado}, denotado por $\chi^2$, es un test de contraste de hipótesis que puede ser usado para contrastar a partir dee una muestra aleatoria simple de una variable $X$, si $X$ sigue una distribución determinada. En este caso, como queremos comprobar si los números generados son efectivamente aleatorios, lo que debemos comprobar es si los datos siguen una distribución uniforme en el intervalo $[0,1]$. Por lo tanto, las hipótesis del test serán:
+\begin{itemize}
+\item $H_0$: los datos proceden de una distribución $\mathcal{U}[0,1]$.
+\item $H_1$: los datos no proceden de una distribución $\mathcal{U}[0,1]$.
+\end{itemize}
+Como el test $\chi^2$ es cualitativo, necesitamos clasificar los números generados en $d\in\mathbb{N}$ subconjuntos, denominados \textit{clases}. A la cantidad de números que encontramos dentro de cada clase, se le llama \textit{frecuencia observada de la clase} $i$, y se denota por $N_i$. Calcular estas frecuencias es fácil, ya que podemos realizar una homotecia del intervalo $[0,1]$ al intervalo $[0,d]$, usando la función parte entera para obtener un índice válido: $C_i=\floor{d x_i}$. Una vez tenemos la frecuencia observada, nos falta calcular la \textit{frecuencia esperada}, $E_i$, que se puede calcular como $E_i=np_i$. Como queremos constrastar que los datos siguen una distribución uniforme, se tiene que $p_i=\frac{1}{d}$, luego $E_i=\frac{n}{d}$. 
+
+Una vez tenemos todos los datos necesarios, podemos usar el estadístico del test $\chi^2$, que es sabido que sigue una distribución $\chi^2(d-1)$:
+\[
+\chi^2=\sum_{i=1}^d\frac{(N_i-E_i)^2}{E_i} \longrightarrow \chi^2(d-1)
+\]
+Como las frecuencias esperadas son constantes, la expresión anterior puede simplificarse en términos de operaciones a realizar:
+\begin{multline}
+\chi^2=\sum_{i=1}^d\frac{(N_i-E_i)^2}{E_i}=\frac{d}{n}\sum_{i=1}^d(N_i-E_i)^2= \\
+=\frac{d}{n}\left(\sum_{i=1}^dE_i^2+\sum_{i=1}^d\frac{n^2}{d^2}-2\frac{n}{d}\sum_{i=1}^dE_i\right)=\frac{d}{n}\sum_{i=1}^dE_i^2-n
+\end{multline}
+
+Para poder aplicar este test, es obligratorio que las frecuencias esperadas en cada clase sea mayor que 5, es decir, $E_i>5$, luego elegiremos el número de clases $d$ como el mínimo número de clases necesario para cumplir esa condición.
+
+Por último, es necesario fijar un nivel de significación $\alpha$ (normalmente  0.05), y comprobar si el valor resultanto del estadístico pertenece al siguiente conjunto:
+\[
+\{\chi^2\leq \chi^2_{d-1,\frac{\alpha}{2}}\}\cup\{\chi^2\geq \chi^2_{d-1,1-\frac{\alpha}{2}}\}
+\]

@@ -2,7 +2,7 @@
 \documentclass[a4paper,11pt]{book}
 %\documentclass[a4paper,twoside,11pt,titlepage]{book}
 \usepackage[utf8]{inputenc}
-\usepackage[spanish]{babel}
+\usepackage[spanish, es-lcroman]{babel}
 \usepackage{tikz}
 \usepackage{tikz-cd}
 \usetikzlibrary{babel}
@@ -154,7 +154,13 @@ pdfproducer = {pdflatex}
 }
 
 \usepackage{pdfpages}
-
+\usepackage{enumerate}
+\newcommand{\congruencia}[3]{ #1 \equiv #2 \;\;mod \; #3 }
+\newcommand{\floorfrac}[2]{\left\lfloor\frac{#1}{#2}\right\rfloor}
+\newcommand{\floor}[1]{\left\lfloor #1 \right\rfloor}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\C}{\mathbb{C}}
 \begin{document}
 
 %\input{portrait/portrait}
@@ -175,9 +181,9 @@ pdfproducer = {pdflatex}
 %\bibliography{bibliography/bibliography}\addcontentsline{toc}{chapter}{Bibliografía}
 %\bibliographystyle{plainnat}
 %
-\begin{appendices}
-\input{appendix/code}
-\end{appendices}
+%\begin{appendices}
+%\input{appendix/code}
+%\end{appendices}
 %\input{apendices/paper/paper}
 %\input{glosario/entradas_glosario}
 %\addcontentsline{toc}{chapter}{Glosario}
