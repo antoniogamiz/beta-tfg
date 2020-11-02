@@ -158,7 +158,7 @@ donde $q=p-r$. La suma en binario se realiza mediante la operación lógica or-e
 b_i=b_{i-p}\oplus b_{i-p+q}
 \]Una vez hayamos evaluado esta recurrencia cierto número de veces $l$, con $l\leq p$, podemos interpretar la secuencia de bits como tuplas de longitud $l$ contiguas (si falta espacio, se empieza por el principio, ya que es un registro con desplazamiento). Es evidente ver que si $l$ es primo relativo con $2^p-1$, entonces el periodo de las $l$-tuplas también será $2^p-1$.
 
-\begin{example}
+\begin{example}\label{example:lfsrg}
 Primero tomamos uno de los polinomios de \cite{zierler1969}, como por ejemplo $x^3+x^5+1$. Como este polinomio es irreducible, la teoría de Galois nos dice que el periodo será $2^{\max3,5}-1=31$, es deicr, podremos generar 31 polinomios diferentes de grado 5 módulo 2. Antes de empezar la secuencia, necesitamos definir los primeros 5 bits. Se puede tomar, por ejemplo, 11111 como secuencia inicial. Fácilmente se puede generar el resto de la secuencia, donde cada bit es el coeficiente de uno de los términos de tales polinomios. 
 
 En nuestro caso, las primeras 32 interacciones del método nos dan como resultado
@@ -212,3 +212,30 @@ Por último, es necesario fijar un nivel de significación $\alpha$ (normalmente
 \[
 \{\chi^2\leq \chi^2_{d-1,\frac{\alpha}{2}}\}\cup\{\chi^2\geq \chi^2_{d-1,1-\frac{\alpha}{2}}\}
 \]
+
+\begin{example}
+Vamos a usar el test $\chi^2$ para analizar la aleatoriedad de la secuencia generada en el ejemplo \ref{example:lfsrg}, usando un generador LFSR. Suponiendo que previamente los datos han sido transformados al intervalo $[0,1]$.
+
+Lo primero es dividir el intervalo $[0,1]$ en $d$ partes de forma que la frecuencia esperada en cada clase sea mayor a 5. Como la distribucion que queremos contrastar es la uniforme, la probabilidad de que un elemento caiga en una clase es la misma para todas, $\frac{1}{d}$. Por lo tanto podemos tomar $d=6$, ya que $n/d=32/6>5$. Obteniendo:
+
+\begin{center}
+\begin{tabular}{c|cccccc}
+i & 0 & 1 & 2 & 3 & 4 & 5 \\ 
+\hline 
+$N_i$ & 10 & 12 & 10 & 0 & 0 & 0 \\ 
+\end{tabular} 
+\end{center}
+Calculamos el valor del estadístico:
+\[
+\chi^2=\frac{d}{n}\sum_{i=1}^dE_i^2-n=32.5
+\]
+La región crítica es 
+\[
+\{\chi^2\leq \chi^2_{d-1,\frac{\alpha}{2}}\}\cup\{\chi^2\geq \chi^2_{d-1,1-\frac{\alpha}{2}}\}=
+\{\chi^2\leq 0.8312 \}\cup\{\chi^2\geq 12.8325 \}\ni 32.5
+\]
+Luego tenemos que rechazar la hipótesis nula, ya que el valor del estadístico se encuentra en la región crítica. Esto quiere decir que nuestro generador LFSR ha generado números \textit{suficientemente} aleatorios. Esto es debido a que hemos elegido un trinomio con grados muy pequeños.
+
+Los resultados obtenidos tienen sentido ya que la mitad de las clases están vacías cuando deberían estar uniformemente distribuidas.
+
+\end{example}
