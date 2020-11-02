@@ -16,6 +16,8 @@ Una secuencia de números aleatorios es una sucesión de variables aleatorias in
 
 \section{Métodos de generación}
 
+Una vez que hemos definido qué es una secuencia aleatoria, necesitamos estudiar métodos para generarlas. Los procedimientos descritos en esta sección no son, ni mucho menos, todos los que hay, pero pretenden dar una visión general de algunas de las técnicas usadas en este campo.
+
 \subsection{Métodos manuales}
 
 Cuando los matemáticos empezaron a necesitar números aleatorios para sus investigaciones, no existían todavía ordenadores para producirlos, luego era necesario recurrir a métodos mas artesanales como el lanzamiento de monedas o dados. Evidentemente, la utilidad de estos métodos para fines estadísticos era escasa.
@@ -30,15 +32,15 @@ Los métodos digitales son algoritmos numéricos que, a partir de una \textit{se
 Los números de una secuencia creada a través de un proceso determinista (una rutina, un programa, etc.) reciben el nombre de números pseudoaleatorios.
 \end{definition}
 
-Los métodos de generación de números aleatorios suelen repetir la misma secuencia de números. A la longitud de esa secuencia se le denomina \textit{periodo}.
+De ahora en adelante no vamos a hacer distinción al hablar de números aleatorios y números pseudoaleatorios. Es importante tener en cuenta que este tipo de métodos suele repetir la misma secuencia de números con el tiempo. A la longitud de tal secuencia se le denomina \textit{periodo}.
 
 \subsubsection{Middle Square method}
 
-El primero de estos métodos es el conocido \textit{Método del centro de los cuadrados} (\textit{middle-square method}), propuesto por John Von Neumann en 1946 (ver \cite{von195113}). El método es bastante simple: consiste en tomar un número $n\in\mathbb{N}$, elevarlo al cuadrado, tomar los $\frac{n}{2}$ valores del centro y repetir el proceso (implementación en listado \ref{square-center-method}).  El problema de este método es su rápida convergencia a cero, es decir, secuencias de números aleatorios bastante cortas, y la existencia de valores que crean siempre el mismo bucle. Por ejemplo, si tomamos números de 4 cifras con $n=10$, obtendremos $n^2=0100$, luego obtendríamos otra vez $10$ como resultado.
+El primero método desarrollado de este tipo es denominado \textit{Método del centro de los cuadrados} (\textit{middle-square method}), propuesto por John Von Neumann en 1946 (ver \cite{von195113}). El método es bastante simple: consiste en tomar un número $n\in\mathbb{N}$, elevarlo al cuadrado, tomar los $\frac{n}{2}$ valores del centro y repetir el proceso.  El problema de este método es su rápida convergencia a cero, es decir, las secuencias de números aleatorios son bastante cortas ya que existen valores que \textit{reinician} el generador. Por ejemplo, si tomamos números de 4 cifras con $n=10$, se obtendría $n^2=0100$, luego volveríamos a la situación del principio con $10$ como resultado.
 
 \subsubsection{Generadores congruenciales}
 
-El siguiente tipo de generadores se basan en calcular congruencias módulo un número natural $m$ de el resultado de evaluar una función $f$:
+El siguiente tipo de generadores se basan en calcular congruencias módulo un número natural $m$, al resultado de evaluar una función $f$ determinada:
 
 \begin{equation}\label{gc}
 X_{n+1}=f(X_0,\ldots, X_n)\;mod\;m
@@ -50,25 +52,26 @@ X_{n+1}=(aX_n+c)\;mod\;m
 \end{equation}
 donde 
 \begin{itemize}
-\item $a$ es el multiplicador ($0\geq a<m$)
+\item $a$ es el multiplicador ($0\leq a<m$)
 \item $m$ el módulo ($m>0$)
-\item $c$, el incremento ($0\geq c < m$)
+\item $c$, el incremento ($0\leq c < m$)
 \item $X_0$, la semilla ($0 < m$)
 \end{itemize}
 
-A este método se le conoce como Generador Congruencial Lineal (G.C.L) y fue propuesto por D.H. Lehmer en 1949. Es fácil ver a partir de \eqref{gcl}, que la elección de los parámetros ($a$,$m$, $c$ ,$X_0$), juega un papel fundamental en la calidad del generador. Por ejemplo, si se toma  $a=1$ y $c$ tal que $mcd(c,m)=1$, se tiene entonces un generador de periodo $m$. Además, al estar haciendo congruencias, es fácil deducir que el periodo siempre será igual o menor que $m$, luego cuanto más grande sea $m$, más largo podrá ser el periodo. El siguiente teorema nos da condiciones suficientes para obtener un GCL de longitud máxima $m$.
+A este método se le conoce como Generador Congruencial Lineal (G.C.L) y fue propuesto por D.H. Lehmer en 1949 (\cite{lehmer1951}). Es fácil ver a partir de \eqref{gcl}, que la elección de los parámetros ($a$, $m$, $c$ ,$X_0$), juega un papel fundamental en la calidad del generador. Por ejemplo, si se toma  $a=1$ y $c$ tal que $c$ y $m$ sean primos relativos, se tiene entonces un generador de periodo $m$. Es fácil deducir que el periodo siempre será igual o menor que $m$ (debido a la operación módulo), luego cuanto más grande sea $m$, más largo podrá ser el periodo. El siguiente teorema nos da condiciones suficientes para obtener un GCL de longitud máxima $m$.
 
 \begin{theorem}
 La secuencia definida por la equación \eqref{gcl}, tiene periodo máximo si se cumple:
 \begin{enumerate}[(i)]
 \item $c$ es primo relativo con $m$.
-\item $\congruencia{a}{1}{p}$ si $p$ es un factor primo de $m$.
-\item $\congruencia{a}{1}{4}$ si $4$ es un factor de $m$.
+\item $\congruencia{a}{1}{p}$, si $p$ es un factor primo de $m$.
+\item $\congruencia{a}{1}{4}$, si $4$ es un factor de $m$.
 \end{enumerate}
 \end{theorem}
 
+% demostracion alternativa: https://math.stackexchange.com/a/426929/443233
 \begin{proof}
-El caso $a=1$ es fácil, ya que si $mcd(c,m)=1$, el periodo es $m$. Por lo tanto, solo tenemos que demostrar el caso $a\neq 1$. Partiendo de \eqref{gcl}, se puede sustituir recursivamente la expresión de $X_n$, obteniendo:
+El caso $a=1$ es fácil, ya que si $mcd(c,m)=1$, el periodo es evidentemente $m$, por lo explicado anteriormente. Por lo tanto, solo tenemos que demostrar el caso $a\neq 1$. Partiendo de \eqref{gcl}, se puede sustituir recursivamente la expresión de $X_n$, se obtiene:
 \[
 \congruencia{x_n}{a^nx_0+\frac{(a^n-1)c}{a-1}}{m}
 \]
@@ -76,11 +79,15 @@ queremos encontrar la longitud de ese generador, es decir, el número $n\in\math
 \[
 \congruencia{\frac{(a^n-1)(x_0(a-1)+c)}{a-1}}{0}{m}
 \]
-Por las condiciones $(i)$ y $(ii)$ se tiene que $x_0(a-1)+c$ es primo relativo con $m$. Luego podemos obviar esa parte de la ecuación y resolver, en su lugar:
+Para reducir esa expresión, usamos que $x_0(a-1)+c$ es primo relativo con $m$. Ese hecho se razona por reducción al absurdo usando las condiciones del teorema. Llamemos $\lambda=x_0(a-1)+c$. Supongamos $p$ un número primo tal que $p|m$ y $p|\lambda$. Por la condición $ii$, se tiene que $\congruencia{a}{1}{p}$, es decir:
+\[
+a = 1+kp, \;k\in\N \Rightarrow x_0(1+kp-1)+c\;(\;mod\;p) = c \Rightarrow \congruencia{\lambda}{c}{p}
+\]
+Pero hemos asumido que $p|\lambda$, luego $\congruencia{\lambda}{0}{p}$, pero $p\nmid c$ (por $i$), así que tenemos una contradicción. Luego podemos obviar esa parte de la ecuación y resolver, en su lugar:
 \begin{equation}\label{eq:gcl2}
 \congruencia{\frac{a^n-1}{a-1}}{0}{m}
 \end{equation}
-Lo que queremos es ver que si $a$ satisface la condiciones del teorema, entonces $n$ es igual a $m$. Vamos a demostrar primero el resultado si $m$ es una potencia de un primo mayor que 2, es decir, $m=p^\alpha$, donde $\alpha\in\mathbb{N}$ y $\alpha\geq 2$ (si $\alpha=1$ es el caso del principio).
+Queremos ver que si $a$ satisface las condiciones del teorema, entonces $n$ es igual a $m$. Vamos a demostrar primero el resultado si $m$ es una potencia de un primo mayor que 2, es decir, $m=p^\alpha$, donde $\alpha\in\mathbb{N}$ y $\alpha\geq 2$ (si $\alpha=1$ es el caso del principio).
 
 Como $a$ satisface la condición $(ii)$, $a$ se expreserá como:
 \begin{equation}\label{eq:gcl3}
@@ -106,7 +113,7 @@ y por lo tanto, es menor o igual que $j-1$. Pero el factor $p$ aparece al menos 
 
 Todavía queda demostrar que, efectivamente, $n=p^\alpha$ es el menor valor que satisface \eqref{eq:gcl2}. Tenemos que ver que ningún valor menor a $p^\alpha$ satisface \eqref{eq:gcl2}. Como \eqref{eq:gcl2} es equivalente a $\congruencia{a^n}{1}{m}$, tenemos que $a$ pertenece al exponente de $n\,(mod\, m)$.  Por tanto, se puede usar el teorema descrito en \cite{ore1988number}, que nos dice que si hay otro número $N$ que cumple \eqref{eq:gcl2}, entonces $n$ divide a $N$. Como $n=p^\alpha$, viendo que no se cumple para $p^{\alpha-1}$ es suficiente para asegurar que $n$ es el mínimo.
 
-Repitiendo los mismos pasos que en \eqref{eq:gcl4}, pero con $n=p^{\alpha-1}$, obteniendo la siguiente expresión para el término j-ésimo:
+Repitiendo los mismos pasos que en \eqref{eq:gcl4}, pero con $n=p^{\alpha-1}$, se obtiene la siguiente expresión para el término j-ésimo:
 \begin{equation}\label{eq:gcl5}
 \frac{a^n-1}{a-1}=p^{\alpha-1}+\frac{p^{\alpha-1}(p^{\alpha-1}-1)}{2!}kp^\beta+\cdots+(kp^\beta)^{p^{\alpha-1}-1}
 \end{equation}
@@ -114,7 +121,7 @@ donde el coeficiente j-ésimo es igual a
 \[
 \frac{p^{\alpha-1}}{j} \binom{p^{\alpha-1}}{j-1} k^{j-1}p^{(j-1)\beta}, \;\;\; (j>1)
 \]
-Al contrario que antes, ahora tenemos que ver que ese número no es divisible por $p^\alpha$. Evindetemente, el primer término, $p^{\alpha-1}$ no es divisible por $p^\alpha$, por consiguiente, con demostrar que los otros términos sí dividen a $p^\alpha$, es suficiente. El argumento es análogo al anterior, pero esta vez nos falta otro término $p$. Ese término se obtiene en $p^{(j-1)\beta}$, ya que como $p$ es impar, \eqref{eq:gcl6} es menor o igual que $j-2$.
+Al contrario que antes, ahora tenemos que ver que ese número no es divisible por $p^\alpha$. Evindetemente, el primer término, $p^{\alpha-1}$, no es divisible por $p^\alpha$, por consiguiente, con demostrar que los otros términos sí dividen a $p^\alpha$, es suficiente. El argumento es análogo al anterior, pero esta vez nos falta otro término $p$. Ese término se obtiene en $p^{(j-1)\beta}$, ya que como $p$ es impar, \eqref{eq:gcl6} es menor o igual que $j-2$.
 
 Con esto queda concluida la prueba para $m=p^\alpha$ si $p$ es un primo impar. Para $p=2$, simplemente  hay que considerar la fórmula alternativa de Legendre:
 \[
@@ -127,7 +134,7 @@ m=p_1^{\alpha_1}\cdots p_s^{\alpha_s}, \;\;\; a=1+kp_1^{\alpha_1}\cdots p_s^{\al
 donde $\{p_1,\ldots, p_s\}$ son primos, $\{\alpha_1,\ldots,\alpha_s\}$ son enteros positivos y $k\neq 0$ con $mcd(k,m)=1$, la demostración es prácticamente igual al caso que hemos desarrollado.
 \end{proof}
 
-Este teorema tiene gran importancia ya que nos asegura que si escogemos los parámetros $a$ y $c$ cumpliendo ciertas condiciones, podemos obtener un generador congruencial lineal de longitud casi arbitraria $m$. Esa característica combinada con lo simple que es de calcular $X_{n+1}$, hace a este tipo de G.C.L una buena elección de generador de números pseudoaleaorios. En \cite{wiki:000}, puede verse una lista de los valores $(a,c,m)$ escogidos por diferentes implementaciones de este proceso. Es importante notar, que aunque el teorema es válido para cualquier producto de primos, casi siempre se toma $m$ como una potencia de 2, normalmente $2^{32}$ o $2^{64}$. Esto es debido a razones de eficiencia por la forma en la que se almacenan los datos en la memoria de un ordenador.
+Este teorema tiene gran importancia ya que nos asegura que si escogemos los parámetros $a$ y $c$ cumpliendo ciertas condiciones, podemos obtener un generador congruencial lineal de longitud arbitraria $m$. Esa característica combinada con lo simple que es de calcular $X_{n+1}$, hace a este tipo de G.C.L una buena elección de generador de números pseudoaleaorios. En \cite{wiki:000}, puede verse una lista de los valores $(a,c,m)$ escogidos por diferentes implementaciones de este proceso. Es importante notar, que aunque el teorema es válido para cualquier producto de primos, casi siempre se toma $m$ como una potencia de 2, normalmente $2^{32}$ o $2^{64}$. Esto es debido a razones de eficiencia por la forma en la que se almacenan los datos en la memoria de un ordenador.
 
 Por último, vamos a ver un tipo de generador de números pseudoaleatorios que usa registros hardware y operaciones lógicas a nivel de bit.
 
@@ -139,7 +146,7 @@ Por último, vamos a ver un tipo de generador de números pseudoaleatorios que u
 
 % TODO: referenciar Gentle
 
-Un registro de retroalimentación lineal con desplazamiento, o LFSR, es un registro de desplazamiento (un registro circular) cuyto bit de entrada es el resultado de evaluar una función lineal usando su estado previo. Este tipo de generadores fue propuesto por Tausworthe en 1965. El bit resultante se puede expresar mediante la siguiente recurrencia:
+Un registro de retroalimentación lineal con desplazamiento, o LFSR, es un registro de desplazamiento (circular) cuyo bit de entrada es el resultado de evaluar una función lineal usando su estado previo. Este tipo de generadores fue propuesto por Tausworthe en 1965. El bit resultante se puede expresar mediante la siguiente recurrencia:
 \begin{equation}
 \congruencia{b_i}{(a_{p}b_{i-p}+a_{p-1}b_{i-p+1}+\ldots+a_{1}b_{i-1})}{2}
 \end{equation}
@@ -147,25 +154,25 @@ donde $b_i\in\{0,1\}$ para todo $i$. Como el módulo del generador, $m=2$, es un
 \[
 f(z)=z^p-(a_{1}z^{p-1}+\ldots+a_{p-1}z+a)
 \]
-sobre el cuerpo finito de Galois $\mathcal{G}(2)$ definido sobre los enteros $Z_2$ con las operaciones suma y producto usuales, seguidas de una reducción módulo 2. Como consecuencia de la teoría de Galois, se tiene que mientras haya al menos un $b_i\neq 0$, el periodo de la recurrencia será $2^{p-1}$ si y solo si $f$ es irreducible en $\mathcal{G}(2)$.
+sobre el cuerpo finito de Galois $\mathcal{G}(2)$, definido sobre los enteros $\Z_2$ con las operaciones suma y producto usuales, seguidas de una reducción módulo 2. Como consecuencia de la teoría de Galois, se tiene que mientras haya al menos un $b_i\neq 0$, el periodo de la recurrencia será $2^{p}-1$ si y solo si $f$ es irreducible en $\mathcal{G}(2)$.
 
-Si el módulo es igual a 2, solo hay un binomio irreducible, $x+1$. Sin embargo, hay una gran variedad de trinomios módulo 2 (ver \cite{zierler1969}). Tales trinomios suelen ser denotados por $R(p,r)=x^p+x^r+1$. Si tomamos esos polinomios como $f$, obtenemos la siguiente recurrencia:
+Si el grado es igual a 2, solo hay un binomio irreducible, $x+1$. Sin embargo, hay una gran variedad de trinomios módulo 2 (ver \cite{zierler1969}). Tales trinomios suelen denotarse por $R(p,r)=x^p+x^r+1$. Si tomamos uno de esos polinomios como $f$, obtenemos la siguiente recurrencia:
 \[
-\congruencia{b_i}{(b_{i-p}+b_{i-p+q})}{2}
+\congruencia{b_i}{b_{i-p}+b_{i-r}}{2}
 \]
 donde $q=p-r$. La suma en binario se realiza mediante la operación lógica or-exclusivo (\textit{xor}), denotada por $\oplus$, quedando:
 \[
-b_i=b_{i-p}\oplus b_{i-p+q}
-\]Una vez hayamos evaluado esta recurrencia cierto número de veces $l$, con $l\leq p$, podemos interpretar la secuencia de bits como tuplas de longitud $l$ contiguas (si falta espacio, se empieza por el principio, ya que es un registro con desplazamiento). Es evidente ver que si $l$ es primo relativo con $2^p-1$, entonces el periodo de las $l$-tuplas también será $2^p-1$.
+b_i=b_{i-p}\oplus b_{i-r}
+\]Una vez hayamos evaluado esta recurrencia cierto número de veces $l$, con $l\leq p$, podemos interpretar la secuencia de bits como tuplas de longitud $l$ contiguas (si llegamos al final, se empieza por el principio, ya que es un registro con desplazamiento). Es evidente ver que si $l$ es primo relativo con $2^p-1$, entonces el periodo de las $l$-tuplas también será $2^p-1$.
 
 \begin{example}\label{example:lfsrg}
-Primero tomamos uno de los polinomios de \cite{zierler1969}, como por ejemplo $x^3+x^5+1$. Como este polinomio es irreducible, la teoría de Galois nos dice que el periodo será $2^{\max3,5}-1=31$, es deicr, podremos generar 31 polinomios diferentes de grado 5 módulo 2. Antes de empezar la secuencia, necesitamos definir los primeros 5 bits. Se puede tomar, por ejemplo, 11111 como secuencia inicial. Fácilmente se puede generar el resto de la secuencia, donde cada bit es el coeficiente de uno de los términos de tales polinomios. 
+Primero tomamos uno de los polinomios de \cite{zierler1969}, como por ejemplo, $x^3+x^5+1$. Como este polinomio es irreducible, la teoría de Galois nos dice que el periodo será $2^{\max(3,5)}-1=31$, es decir, podremos generar 31 polinomios diferentes de grado 5 reducción módulo 2. Antes de empezar la secuencia, necesitamos definir los primeros 5 bits. Se puede tomar, por ejemplo, 11111 como secuencia inicial. Fácilmente se puede generar el resto de la secuencia, donde cada bit es el coeficiente de uno de los términos de tales polinomios. 
 
 En nuestro caso, las primeras 32 interacciones del método nos dan como resultado
 \[
 11111000110111010100001001011001
 \]
-Una vez tenemos la secuencia, necesitamos escoger un número $l$ que se primo relativo con 32, como $l=17$. Ahora simplement tenemos que coger los 17 primeros bits e interpretárlos en decimal, obteniendo 30941. Para el siguiente número, hay que coger los 17 siguientes, teniendo en cuenta que esos 32 bits son \textit{circulares}, es decir, si alcanzamos el final, tenemos que continuar desde el principio. Si repetimos el proceso descrito 32 veces, obtenemos:
+Una vez tenemos la secuencia, necesitamos escoger un número $l$ que sea primo relativo con 32, como $l=17$. Ahora simplemente tenemos que coger los 17 primeros bits e interpretárlos en decimal, obteniendo 30941. Para el siguiente número, hay que coger los 17 siguientes, teniendo en cuenta que esos 32 bits son \textit{circulares}, es decir, si alcanzamos el final, tenemos que continuar desde el principio. Si repetimos el proceso descrito 32 veces, obtenemos:
 \begin{center}
 30941, 33970, 58229, 4811, 36308, 19247, 14160, 11452, 56642, 45809, 29961, 52166, 54309, 12059, 20630, 48238, 16985, 61882, 2405, 50922, 9623, 7080, 38494, 28321, 22904, 47748, 26083, 59922, 38797, 43083, 24119, 41260
 \end{center}
@@ -175,9 +182,9 @@ Es evidente que estos números no pertenecen al intervalo $[0,1]$, pero es fáci
 
 \subsubsection{PRNG de Linux}
 
-Los generadores descritos en los apartados anteriores son fáciles de implementar y usar. Sin embargo, también es relativamente fácil adivinar qué procedimiento se está siguiendo para generar tales números. Eso es una gran desventaja para la seguridad de muchos protocolos, como sistemas criptográficos, que están basados en la imposibilidad de que un atacante adivine datos generados aleatoriamente (como claves de sesión).
+Los generadores descritos en los apartados anteriores son fáciles de implementar y usar. Sin embargo, también es relativamente fácil adivinar qué procedimiento se está siguiendo para generar tales números. Eso es una gran desventaja para la seguridad de muchos protocolos, como sistemas criptográficos, que están basados en la imposibilidad de que un atacante adivine como esos datos aleatorios son generados (como claves de sesión).
 
-Por estas razones, el PRNG usado en Linux es mucho más complejo de lo aquí explicado y se escapa del propósito de este trabajo. En este artículo (\cite{lacharme2012}), se puede encontrar una explicación profunda y detallada de cómo funciona exactamente la última versión de este generador.
+Por estas razones, el PRNG usado en Linux es mucho más complejo de lo aquí explicado y se escapa del propósito de este trabajo. En el artículo \cite{lacharme2012}, se puede encontrar una explicación profunda y detallada de cómo funciona exactamente la última versión de este generador.
 
 \section{Calidad de los PRNG}
 
@@ -210,7 +217,7 @@ Por último, es necesario fijar un nivel de significación $\alpha$ (normalmente
 \]
 
 \begin{example}
-Vamos a usar el test $\chi^2$ para analizar la aleatoriedad de la secuencia generada en el ejemplo \ref{example:lfsrg}, usando un generador LFSR. Suponiendo que previamente los datos han sido transformados al intervalo $[0,1]$.
+Vamos a usar el test $\chi^2$ para analizar la aleatoriedad de la secuencia generada en el ejemplo \ref{example:lfsrg}, usando un generador LFSR. Supongamos que previamente los datos han sido transformados al intervalo $[0,1]$.
 
 Lo primero es dividir el intervalo $[0,1]$ en $d$ partes de forma que la frecuencia esperada en cada clase sea mayor a 5. Como la distribucion que queremos contrastar es la uniforme, la probabilidad de que un elemento caiga en una clase es la misma para todas, $\frac{1}{d}$. Por lo tanto podemos tomar $d=6$, ya que $n/d=32/6>5$. Obteniendo:
 
@@ -230,7 +237,7 @@ La región crítica es
 \{\chi^2\leq \chi^2_{d-1,\frac{\alpha}{2}}\}\cup\{\chi^2\geq \chi^2_{d-1,1-\frac{\alpha}{2}}\}=
 \{\chi^2\leq 0.8312 \}\cup\{\chi^2\geq 12.8325 \}\ni 32.5
 \]
-Luego tenemos que rechazar la hipótesis nula, ya que el valor del estadístico se encuentra en la región crítica. Esto quiere decir que nuestro generador LFSR ha generado números \textit{suficientemente} aleatorios. Esto es debido a que hemos elegido un trinomio con grados muy pequeños.
+Luego tenemos que rechazar la hipótesis nula, ya que el valor del estadístico se encuentra en la región crítica. Esto quiere decir que nuestro generador LFSR no ha generado números \textit{suficientemente} aleatorios. Esto es debido a que hemos elegido un trinomio con grados muy pequeños.
 
 Los resultados obtenidos tienen sentido ya que la mitad de las clases están vacías cuando deberían estar uniformemente distribuidas.
 
@@ -240,7 +247,7 @@ Una vez conocemos el principal test de contraste usado, podemos describir brevem
 
 \subsection{Test de rachas}
 
-Esta prueba se realiza considerando a los números generados como dígitos. La prueba consiste en contar el número de dígitos que aparece entre ocurrencias sucesivas de un mismo dígito. Por ejemplo, el número 834938 presenta un hueco de longitud cuatro entre los dos ochos.
+Esta prueba se realiza considerando a los números generados como dígitos. La prueba consiste en contar el número de dígitos que aparecen entre ocurrencias sucesivas de un mismo dígito. Por ejemplo, el número 834938 presenta un hueco de longitud cuatro entre los dos ochos.
 
 La probabilidad de que aparezca cada uno de los tamaños de longitud $i$ se obtiene con la siguiente expresión:
 \[
@@ -251,7 +258,7 @@ Sin embargo, como teóricamente el valor del tamaño del hueco puede ser infinit
 Contabilizamos las fecuencias observadas $N_i$, con $i=0, \ldots, k$ y las frecuencias esperadas $E_i=np_i$, con $i=0, \ldots, k$. Una vez obtenidas ambas frecuencias, podemos calcular el valor del estadístico $\chi^2$:
 
 \[
-\chi^2=\frac{d}{n}\sum_{i=1}^dE_i^2-n=\longrightarrow \chi^2(k)
+\chi^2=\frac{d}{n}\sum_{i=1}^dE_i^2-n\longrightarrow \chi^2(k)
 \]
 Y construir un contraste para las hipótesis
 \begin{itemize}
