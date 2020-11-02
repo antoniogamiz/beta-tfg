@@ -147,17 +147,30 @@ donde $b_i\in\{0,1\}$ para todo $i$. Como el módulo del generador, $m=2$, es un
 \[
 f(z)=z^p-(a_{1}z^{p-1}+\ldots+a_{p-1}z+a)
 \]
-sobre el cuerpo finito de Galois $\mathcal{G}(2)$ definido sobre los enteros $\{0,1\}$ con las operaciones suma y producto usuales, seguidas de una reducción módulo 2. Como consecuencia de la teoría de Galois, se tiene que mientras haya al menos un $b_i\neq 0$, el periodo de la recurrencia será $2^{p-1}$ si y solo si $f$ es irreducible en $\mathcal{G}(2)$.
+sobre el cuerpo finito de Galois $\mathcal{G}(2)$ definido sobre los enteros $Z_2$ con las operaciones suma y producto usuales, seguidas de una reducción módulo 2. Como consecuencia de la teoría de Galois, se tiene que mientras haya al menos un $b_i\neq 0$, el periodo de la recurrencia será $2^{p-1}$ si y solo si $f$ es irreducible en $\mathcal{G}(2)$.
 
-Si el módulo es igual a 2, solo hay un binomio irreducible, $x+1$. Sin embargo, hay una gran variedad de trinomios módulo 2 (ver \cite{zierler1969primitive}). Tales trinomios suelen ser denotados por $R(p,r)=x^p+x^r+1$. Si tomamos esos polinomios como $f$, obtenemos la siguiente recurrencia:
+Si el módulo es igual a 2, solo hay un binomio irreducible, $x+1$. Sin embargo, hay una gran variedad de trinomios módulo 2 (ver \cite{zierler1969}). Tales trinomios suelen ser denotados por $R(p,r)=x^p+x^r+1$. Si tomamos esos polinomios como $f$, obtenemos la siguiente recurrencia:
 \[
 \congruencia{b_i}{(b_{i-p}+b_{i-p+q})}{2}
 \]
 donde $q=p-r$. La suma en binario se realiza mediante la operación lógica or-exclusivo (\textit{xor}), denotada por $\oplus$, quedando:
 \[
 b_i=b_{i-p}\oplus b_{i-p+q}
-\]Una vez hayamos evaluado esta recurrencia cierto número de veces, $l$ con $l\leq p$, podemos interpretar la secuencia de bits como tuplas de longitud $l$ contiguas (si falta espacio, se empieza por el principio, ya que es un registro con desplazamiento). Es evidente ver que si $l$ es primo relativo con $2^p-1$, entonces el periodo de las $l$-tuplas también será $2^p-1$.
+\]Una vez hayamos evaluado esta recurrencia cierto número de veces $l$, con $l\leq p$, podemos interpretar la secuencia de bits como tuplas de longitud $l$ contiguas (si falta espacio, se empieza por el principio, ya que es un registro con desplazamiento). Es evidente ver que si $l$ es primo relativo con $2^p-1$, entonces el periodo de las $l$-tuplas también será $2^p-1$.
 
+\begin{example}
+Primero tomamos uno de los polinomios de \cite{zierler1969}, como por ejemplo $x^3+x^5+1$. Como este polinomio es irreducible, la teoría de Galois nos dice que el periodo será $2^{\max3,5}-1=31$, es deicr, podremos generar 31 polinomios diferentes de grado 5 módulo 2. Antes de empezar la secuencia, necesitamos definir los primeros 5 bits. Se puede tomar, por ejemplo, 11111 como secuencia inicial. Fácilmente se puede generar el resto de la secuencia, donde cada bit es el coeficiente de uno de los términos de tales polinomios. 
+
+En nuestro caso, las primeras 32 interacciones del método nos dan como resultado
+\[
+11111000110111010100001001011001
+\]
+Una vez tenemos la secuencia, necesitamos escoger un número $l$ que se primo relativo con 32, como $l=17$. Ahora simplement tenemos que coger los 17 primeros bits e interpretárlos en decimal, obteniendo 30941. Para el siguiente número, hay que coger los 17 siguientes, teniendo en cuenta que esos 32 bits son \textit{circulares}, es decir, si alcanzamos el final, tenemos que continuar desde el principio. Si repetimos el proceso descrito 32 veces, obtenemos:
+\begin{center}
+30941, 33970, 58229, 4811, 36308, 19247, 14160, 11452, 56642, 45809, 29961, 52166, 54309, 12059, 20630, 48238, 16985, 61882, 2405, 50922, 9623, 7080, 38494, 28321, 22904, 47748, 26083, 59922, 38797, 43083, 24119, 41260
+\end{center}
+Es evidente que estos números no pertenecen al intervalo $[0,1]$, pero es fácil transformarlos a ese intervalo dividiéndolos por el número máximo que se puede alcanzar, es decir, $2^{17}-1$.
+\end{example}
 % http://users.ece.cmu.edu/~koopman/lfsr/index.html
 
 \subsubsection{PRNG de Linux}

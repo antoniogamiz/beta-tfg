@@ -14,7 +14,7 @@ class LSFRG():
         self.state = self.initstate.astype(int)
         self.polynomial = polynomial
         self.polynomial.sort(reverse=True)
-        self.seq = np.empty([1], dtype=int)
+        self.seq = np.array(0)
 
     def expectedPeriod(self):
         return 2**self.initstate.shape[0]-1
@@ -30,10 +30,33 @@ class LSFRG():
         else:
             self.seq = np.append(self.seq, self.state[-1])
 
+    def listNumbers(self, l):
+        numbers = []
+        i, j = 0, l-1
+        count = self.expectedPeriod()
+        while count >= 0:
+            number = 0
+            if i < j:
+                number = self.seq[i:j]
+            else:
+                number = np.concatenate(
+                    (self.seq[i::], self.seq[0:j]))
+            numbers.append(self._toInteger(number))
+            i = (i+l) % 32
+            j = (j+l) % 32
+            count -= 1
+        return numbers
+
+    def _toInteger(self, arr):
+        return sum(j << i for i, j in enumerate(reversed(arr)))
+
 
 lfsrg = LSFRG([int(sys.argv[1]), int(sys.argv[2])])
 
 for i in range(lfsrg.expectedPeriod()):
     lfsrg.next()
 
+
+print("Sequence: ")
 print(reduce(lambda a, b: str(a)+str(b), lfsrg.seq))
+print(lfsrg.listNumbers(17))
