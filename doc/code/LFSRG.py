@@ -2,6 +2,7 @@ from typing import Tuple
 import numpy as np
 import sys
 from functools import reduce
+from math import floor
 
 
 class LSFRG():
@@ -57,6 +58,22 @@ for i in range(lfsrg.expectedPeriod()):
     lfsrg.next()
 
 
-print("Sequence: ")
-print(reduce(lambda a, b: str(a)+str(b), lfsrg.seq))
-print(lfsrg.listNumbers(17))
+# print("Sequence: ")
+# print(reduce(lambda a, b: str(a)+str(b), lfsrg.seq))
+# print(lfsrg.listNumbers(17))
+
+l = 17
+d = 6
+n = len(lfsrg.listNumbers(l))
+Ni = [0] * d
+for x in lfsrg.listNumbers(l):
+    x = x / float(2**l-1)
+    Ni[floor(d*x)] += 1
+
+chisquare = 0
+for x in Ni:
+    chisquare += x**2
+chisquare *= d/float(n)
+chisquare -= n
+
+print(chisquare)

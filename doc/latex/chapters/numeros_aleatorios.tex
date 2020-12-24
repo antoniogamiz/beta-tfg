@@ -206,7 +206,7 @@ Una vez tenemos todos los datos necesarios, podemos usar el estadístico del tes
 Como las frecuencias esperadas son constantes, la expresión anterior puede simplificarse en términos de operaciones a realizar:
 \begin{multline}
 \chi^2=\sum_{i=1}^d\frac{(N_i-E_i)^2}{E_i}=\frac{d}{n}\sum_{i=1}^d(N_i-E_i)^2= \\
-=\frac{d}{n}\left(\sum_{i=1}^dE_i^2+\sum_{i=1}^d\frac{n^2}{d^2}-2\frac{n}{d}\sum_{i=1}^dE_i\right)=\frac{d}{n}\sum_{i=1}^dE_i^2-n
+=\frac{d}{n}\left(\sum_{i=1}^dN_i^2+\sum_{i=1}^d\frac{n^2}{d^2}-2\frac{n}{d}\sum_{i=1}^dN_i\right)=\frac{d}{n}\sum_{i=1}^dN_i^2-n
 \end{multline}
 
 Para poder aplicar este test, es obligratorio que las frecuencias esperadas en cada clase sea mayor que 5, es decir, $E_i>5$, luego elegiremos el número de clases $d$ como el mínimo número de clases necesario para cumplir esa condición.
