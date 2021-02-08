@@ -1,0 +1,12 @@
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=2]
+\draw[pattern=north west lines, pattern color=blue,draw=none] (-0.5,-1) rectangle (0.5,1);
+\draw[pattern=north west lines, pattern color=green,draw=none] (-1,-0.5) rectangle (1,0.5);
+\draw[line width=1pt,blue](-0.5,-1)--(-0.5,1) node[black,anchor=south west] {$x_0$};
+\draw[line width=1pt,blue](0.5,-1)--(0.5,1) node[black,anchor=south west] {$x_1$};
+\draw[line width=1pt,green](-1,0.5)--(1,0.5) node[black,anchor=west] {$y_1$};
+\draw[line width=1pt,green](-1,-0.5)--(1,-0.5) node[black,anchor=west] {$y_0$};
+\end{tikzpicture}
+\caption{AABB en 2D}
+\end{figure}
