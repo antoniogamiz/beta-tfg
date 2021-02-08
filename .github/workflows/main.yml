@@ -11,7 +11,8 @@ jobs:
           persist-credentials: false
       - uses: xu-cheng/latex-action@v2
         with:
-          root_file: report/master.tex
+          working_directory: report
+          root_file: master.tex
           latexmk_shell_escape: true
           extra_system_packages: "py-pygments"
       - uses: actions/upload-artifact@v1
