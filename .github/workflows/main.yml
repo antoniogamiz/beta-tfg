@@ -1,0 +1,33 @@
+name: Report publication
+
+on: [push]
+
+jobs:
+  compile:
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          persist-credentials: false
+      - uses: xu-cheng/latex-action@v2
+        with:
+          root_file: master.tex
+          latexmk_shell_escape: true
+          extra_system_packages: "py-pygments"
+      - uses: actions/upload-artifact@v1
+        with:
+          name: report
+          path: master.pdf
+  deploy:
+    runs-on: ubuntu-18.04
+    needs: [compile]
+    steps:
+      - uses: actions/download-artifact@v1
+        with:
+          name: report
+          path: build
+      - uses: JamesIves/github-pages-deploy-action@3.7.1
+        with:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+          BRANCH: gh-pages
+          FOLDER: build
