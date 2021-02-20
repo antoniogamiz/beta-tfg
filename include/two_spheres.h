@@ -3,7 +3,6 @@
 
 #include "scene.h"
 #include "material.h"
-#include "color.h"
 #include "sphere.h"
 
 void two_spheres(scene &scene_desc)

@@ -1,29 +1,10 @@
-#ifndef BOX_H
-#define BOX_H
+#include "box.h"
 
-#include "rtweekend.h"
-
-#include "aarect.h"
-
-class box : public hittable
+bool box::bounding_box(double t0, double t1, aabb &output_box) const
 {
-public:
-    box() {}
-    box(const point3 &p0, const point3 &p1, shared_ptr<material> ptr);
-
-    virtual bool hit(const ray &r, double t0, double t1, hit_record &rec) const override;
-
-    virtual bool bounding_box(double t0, double t1, aabb &output_box) const override
-    {
-        output_box = aabb(box_min, box_max);
-        return true;
-    }
-
-public:
-    point3 box_min;
-    point3 box_max;
-    hittable_list sides;
-};
+    output_box = aabb(box_min, box_max);
+    return true;
+}
 
 box::box(const point3 &p0, const point3 &p1, shared_ptr<material> ptr)
 {
@@ -44,5 +25,3 @@ bool box::hit(const ray &r, double t0, double t1, hit_record &rec) const
 {
     return sides.hit(r, t0, t1, rec);
 }
-
-#endif

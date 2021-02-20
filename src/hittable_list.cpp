@@ -1,30 +1,8 @@
-#ifndef HITTABLE_LIST_H
-#define HITTABL_LIST_H
+#include "hittable_list.h"
 
-#include "hittable.h"
-#include "aabb.h"
-
-#include <memory>
-#include <vector>
-
-using std::make_shared;
-using std::shared_ptr;
-
-class hittable_list : public hittable
-{
-public:
-    hittable_list() {}
-    hittable_list(shared_ptr<hittable> object) { add(object); }
-
-    void clear() { objects.clear(); }
-    void add(shared_ptr<hittable> object) { objects.push_back(object); }
-
-    virtual bool hit(const ray &r, double tmin, double tmax, hit_record &rec) const override;
-    virtual bool bounding_box(double t0, double t1, aabb &output_box) const override;
-
-public:
-    std::vector<shared_ptr<hittable>> objects;
-};
+hittable_list::hittable_list(shared_ptr<hittable> object) { add(object); }
+void hittable_list::clear() { objects.clear(); }
+void hittable_list::add(shared_ptr<hittable> object) { objects.push_back(object); }
 
 bool hittable_list::hit(const ray &r, double t_min, double t_max, hit_record &rec) const
 {
@@ -62,5 +40,3 @@ bool hittable_list::bounding_box(double t0, double t1, aabb &output_box) const
     }
     return true;
 }
-
-#endif
