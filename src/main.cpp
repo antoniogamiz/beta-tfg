@@ -1,4 +1,3 @@
-#include "rtweekend.h"
 #include "two_spheres.h"
 
 int main()

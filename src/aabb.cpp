@@ -9,7 +9,7 @@ aabb::aabb(const point3 &a, const point3 &b)
 point3 aabb::min() const { return _min; }
 point3 aabb::max() const { return _max; }
 
-inline bool aabb::hit(const ray &r, double tmin, double tmax) const
+bool aabb::hit(const ray &r, double tmin, double tmax) const
 {
     for (int a = 0; a < 3; a++)
     {

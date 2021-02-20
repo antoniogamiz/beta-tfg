@@ -1,5 +1,5 @@
 #include "scene.h"
-
+#include "color.h"
 void scene::render()
 {
     const int image_height = static_cast<int>(image_width / aspect_ratio);

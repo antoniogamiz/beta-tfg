@@ -4,8 +4,6 @@
 #include "rtweekend.h"
 #include "external/stb_image.h"
 
-#include <iostream>
-
 class texture
 {
 public:

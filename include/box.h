@@ -2,6 +2,8 @@
 #define BOX_H
 
 #include "rtweekend.h"
+
+#include "aabb.h"
 #include "aarect.h"
 #include "hittable_list.h"
 

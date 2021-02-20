@@ -4,10 +4,8 @@
 #include "rtweekend.h"
 
 #include "camera.h"
-#include "material.h"
 #include "hittable_list.h"
-
-#include <iostream>
+#include "material.h"
 
 class scene
 {

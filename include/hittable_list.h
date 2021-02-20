@@ -1,8 +1,10 @@
 #ifndef HITTABLE_LIST_H
 #define HITTABL_LIST_H
 
-#include "hittable.h"
+#include "rtweekend.h"
+
 #include "aabb.h"
+#include "hittable.h"
 
 #include <memory>
 #include <vector>

@@ -1,9 +1,8 @@
 #ifndef TWO_SPHERES_H
 #define TWO_SPHERES_H
 
-#include "scene.h"
-#include "material.h"
 #include "sphere.h"
+#include "scene.h"
 
 void two_spheres(scene &scene_desc)
 {

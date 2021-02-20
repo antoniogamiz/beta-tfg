@@ -1,12 +1,20 @@
 #ifndef RTWEEKEND_H
 #define RTWEEKEND_H
+//==============================================================================================
+// To the extent possible under law, the author(s) have dedicated all copyright and related and
+// neighboring rights to this software to the public domain worldwide. This software is
+// distributed without any warranty.
+//
+// You should have received a copy (see file COPYING.txt) of the CC0 Public Domain Dedication
+// along with this software. If not, see <http://creativecommons.org/publicdomain/zero/1.0/>.
+//==============================================================================================
 
 #include <cmath>
-#include <random>
 #include <cstdlib>
 #include <limits>
 #include <memory>
-#include <iostream>
+
+// Usings
 
 using std::make_shared;
 using std::shared_ptr;
@@ -17,7 +25,7 @@ using std::sqrt;
 const double infinity = std::numeric_limits<double>::infinity();
 const double pi = 3.1415926535897932385;
 
-// Utility functions
+// Utility Functions
 
 inline double degrees_to_radians(double degrees)
 {
@@ -26,20 +34,21 @@ inline double degrees_to_radians(double degrees)
 
 inline double random_double()
 {
+    // Returns a random real in [0,1).
     return rand() / (RAND_MAX + 1.0);
 }
 
 inline double random_double(double min, double max)
 {
+    // Returns a random real in [min,max).
     return min + (max - min) * random_double();
 }
 
-// inline double random_double()
-// {
-//     static std::uniform_real_distribution<double> distribution(0.0, 1.0);
-//     static std::mt19937 generator;
-//     return distribution(generator);
-// }
+inline int random_int(int min, int max)
+{
+    // Returns a random integer in [min,max].
+    return static_cast<int>(random_double(min, max + 1));
+}
 
 inline double clamp(double x, double min, double max)
 {
@@ -50,40 +59,9 @@ inline double clamp(double x, double min, double max)
     return x;
 }
 
-inline int random_int(int min, int max)
-{
-    return static_cast<int>(random_double(min, max));
-}
-
 // Common Headers
 
 #include "ray.h"
 #include "vec3.h"
-
-void write_color(std::ostream &out, color pixel_color)
-{
-    out
-        << static_cast<int>(255.999 * clamp(pixel_color.x(), 0.0, 0.999)) << ' '
-        << static_cast<int>(255.999 * clamp(pixel_color.y(), 0.0, 0.999)) << ' '
-        << static_cast<int>(255.999 * clamp(pixel_color.z(), 0.0, 0.999)) << '\n';
-}
-
-std::vector<int> write_color_parallel(color pixel_color, int samples_per_pixel)
-{
-    auto r = pixel_color.x();
-    auto g = pixel_color.y();
-    auto b = pixel_color.z();
-
-    auto scale = 1.0 / samples_per_pixel;
-    r = sqrt(scale * r);
-    g = sqrt(scale * g);
-    b = sqrt(scale * b);
-
-    std::vector<int> rgb = {static_cast<int>(255.999 * clamp(r, 0.0, 0.999)),
-                            static_cast<int>(255.999 * clamp(g, 0.0, 0.999)),
-                            static_cast<int>(255.999 * clamp(b, 0.0, 0.999))};
-
-    return rgb;
-}
 
 #endif
