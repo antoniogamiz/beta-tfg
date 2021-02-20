@@ -232,7 +232,7 @@ int main()
 {
     // Image
 
-    auto aspect_ratio = 16.0 / 9.0;
+    double aspect_ratio = 16.0 / 9.0;
     int image_width = 300;
     int samples_per_pixel = 15;
     int max_depth = 15;
@@ -311,11 +311,8 @@ int main()
 
     int image_height = static_cast<int>(image_width / aspect_ratio);
 
-    // Camera
-    vec3 vup(0, 1, 0);
-    auto dist_to_focus = 10.0;
-
-    camera cam(lookfrom, lookat, vup, vfov, aspect_ratio, aperture, dist_to_focus, 0.0, 1.0);
+    camera cam;
+    cam.initialize(aspect_ratio);
 
     // Render
 
