@@ -35,4 +35,8 @@ First you need to install [doctl](). You can check [this tutorial](https://www.d
     sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
     sudo update-alternatives --config gcc
     ~~~
+- In order to debug using my Visual Studio Code configuration, you will need to install `gdb`:
 
+    ~~~bash
+    sudo apt install gdb
+    ~~~

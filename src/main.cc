@@ -233,9 +233,9 @@ int main()
     // Image
 
     auto aspect_ratio = 16.0 / 9.0;
-    int image_width = 600;
-    int samples_per_pixel = 25;
-    int max_depth = 50;
+    int image_width = 300;
+    int samples_per_pixel = 15;
+    int max_depth = 15;
 
     // World
     hittable_list world;
@@ -246,7 +246,7 @@ int main()
     auto aperture = 0.0;
     color background(0, 0, 0);
 
-    switch (0)
+    switch (1)
     {
     case 1:
         world = random_scene();
@@ -319,7 +319,7 @@ int main()
 
     // Render
 
-    const unsigned k = std::thread::hardware_concurrency();
+    const unsigned k = 1 || std::thread::hardware_concurrency();
     const int batch_size = floor(image_height / k);
 
     std::cout << "P3\n"
