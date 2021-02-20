@@ -26,4 +26,13 @@ First you need to install [doctl](). You can check [this tutorial](https://www.d
 
     #pragma GCC diagnostic pop
     ~~~
+- I use `C++20` so you need to install an updated version of g++: ([source](https://linuxize.com/post/how-to-install-gcc-compiler-on-ubuntu-18-04/))
+
+    ~~~bash
+    sudo apt install software-properties-common
+    sudo add-apt-repository ppa:ubuntu-toolchain-r/test
+    sudo apt install gcc-9 g++-9
+    sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 90 --slave /usr/bin/g++ g++ /usr/bin/g++-9 --slave /usr/bin/gcov gcov /usr/bin/gcov-9
+    sudo update-alternatives --config gcc
+    ~~~
 
