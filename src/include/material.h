@@ -2,6 +2,7 @@
 #define MATERIAL_H
 
 #include "rtweekend.h"
+
 #include "hittable.h"
 #include "texture.h"
 

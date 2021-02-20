@@ -4,7 +4,7 @@
 #include "rtweekend.h"
 
 #include "camera.h"
-#include "hittable.h"
+#include "material.h"
 #include "hittable_list.h"
 #include "color.h"
 
@@ -35,7 +35,7 @@ public:
                     ray r = cam.get_ray(u, v);
                     pixel_color += ray_color(r, max_depth);
                 }
-                write_color_parallel(pixel_color, samples_per_pixel);
+                write_color(std::cout, pixel_color, samples_per_pixel);
             }
         }
 
@@ -60,7 +60,6 @@ private:
         if (depth <= 0)
             return color(0, 0, 0);
 
-        // If the ray hits nothing, return the background color.
         if (!world.hit(r, 0.001, infinity, rec))
             return background;
 
@@ -71,7 +70,8 @@ private:
         if (!rec.mat_ptr->scatter(r, rec, attenuation, scattered))
             return emitted;
 
-        return emitted + attenuation * ray_color(scattered, depth - 1);
+        return emitted +
+               attenuation * ray_color(scattered, depth - 1);
     }
 };
 

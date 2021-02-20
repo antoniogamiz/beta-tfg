@@ -1,6 +1,7 @@
 doresults
 progress
 .vscode/*
+*.png
 *.ppm
 *.pdf
 .vscode

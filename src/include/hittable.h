@@ -2,13 +2,14 @@
 #define HITTABLE_H
 
 #include "rtweekend.h"
-#include "ray.h"
+
 #include "aabb.h"
 
 class material;
 
-struct hit_record
+class hit_record
 {
+public:
     point3 p;
     vec3 normal;
     shared_ptr<material> mat_ptr;
@@ -17,7 +18,7 @@ struct hit_record
     double v;
     bool front_face;
 
-    inline void set_face_normal(const ray &r, const vec3 &outward_normal)
+    void set_face_normal(const ray &r, const vec3 &outward_normal)
     {
         front_face = dot(r.direction(), outward_normal) < 0;
         normal = front_face ? outward_normal : -outward_normal;

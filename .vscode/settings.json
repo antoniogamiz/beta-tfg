@@ -1,3 +1,8 @@
 {
     "files.autoSave": "onFocusChange",
+    "files.associations": {
+        "stb_image.h": "plaintext",
+        "iostream": "cpp",
+        "memory": "cpp"
+    },
 }
