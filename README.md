@@ -10,4 +10,20 @@ First you need to install [doctl](). You can check [this tutorial](https://www.d
 
 ### External libraries
 
-- [Image library](https://github.com/nothings/stb)
+- [Image library](https://github.com/nothings/stb). To avoid problems with warnings and formatting I have the following configuration in Visual Studio Code:
+    ~~~json
+    "files.associations": {
+        "stb_image.h": "plaintext"
+    },
+    ~~~
+    And the following pragmas added to the header file:
+    ~~~c++
+    #pragma GCC diagnostic push
+    #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+    #pragma GCC diagnostic ignored "-Wsign-compare"
+
+    ...
+
+    #pragma GCC diagnostic pop
+    ~~~
+
